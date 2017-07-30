@@ -1,5 +1,3 @@
 package k.neurons
 
-abstract class Neuron {
-
-}
+abstract class Neuron
