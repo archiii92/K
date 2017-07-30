@@ -15,16 +15,29 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     scanner.close()
 
     val dataValues = ArrayList<Double>()
+    var max = Double.MIN_VALUE
+    var min = Double.MAX_VALUE
 
     for (i in readedLines.indices){
         if (i == 0){
-            continue;
+            continue
         }
         val dataString = readedLines[i].split(",")
-        dataValues.add(dataString[1].toDouble())
+        val dataValue = dataString[1].toDouble()
+
+        if (dataValue > max)
+            max = dataValue
+        else if (dataValue < min)
+            min = dataValue
+
+        dataValues.add(dataValue)
     }
 
-    val trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100;
+    for (i in dataValues.indices) {
+        dataValues[i] = (dataValues[i] - min) / (max - min)
+    }
+
+    val trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100
 
     var i = 0
     while(i < dataValues.count() - inputLayerSize - outputLayerSize){
@@ -36,7 +49,7 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
             j++
         }
 
-        j = 0;
+        j = 0
         while(j < outputLayerSize){
             dataVector.Forecast[j] = dataValues[i + inputLayerSize + j]
             j++
