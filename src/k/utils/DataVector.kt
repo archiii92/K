@@ -45,13 +45,13 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         var j = 0
 
         while(j < inputLayerSize){
-            dataVector.Window[j] = dataValues[i + j]
+            dataVector.Window.add(dataValues[i + j])
             j++
         }
 
         j = 0
         while(j < outputLayerSize){
-            dataVector.Forecast[j] = dataValues[i + inputLayerSize + j]
+            dataVector.Forecast.add(dataValues[i + inputLayerSize + j])
             j++
         }
         if (i < trainDataCount){
@@ -63,7 +63,7 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     }
 }
 
-class DataVector constructor(windowSize: Int, forecastSize: Int){
-    val Window: DoubleArray = kotlin.DoubleArray(windowSize)
-    val Forecast: DoubleArray = kotlin.DoubleArray(forecastSize)
+class DataVector(windowSize: Int, forecastSize: Int) {
+    val Window: ArrayList<Double> = ArrayList(windowSize)
+    val Forecast: ArrayList<Double> = ArrayList(forecastSize)
 }

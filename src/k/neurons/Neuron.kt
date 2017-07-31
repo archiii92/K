@@ -1,9 +1,16 @@
 package k.neurons
 
-abstract class Neuron {
-    var value: Double = 0.0
+interface Neuron {
+    var prevLayer: ArrayList<Neuron>
+    var weights: ArrayList<Double>
 
-    open fun calculateState(): Double {
-        return 0.0
-    }
+    var value: Double
+    var sum: Double
+
+    var δ: Double
+    var ΔW: ArrayList<Double>
+
+    fun calculateState()
+
+    fun activationFunctionDerivative(x: Double): Double
 }

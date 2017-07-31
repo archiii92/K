@@ -1,25 +1,31 @@
 package k.neurons
 
 import java.util.*
+import kotlin.collections.ArrayList
 
 /* Нейрон с логистической функцией активации */
-class LogisticNeuron(inputSize: Int) : Neuron() {
-    val inputNeurons: ArrayList<Neuron> = ArrayList(inputSize)
-    var weights: ArrayList<Double> = ArrayList(inputSize)
+class LogisticNeuron(prevLayer: ArrayList<Neuron>) : Neuron {
+    override var prevLayer: ArrayList<Neuron> = prevLayer
+    override var weights: ArrayList<Double> = ArrayList(prevLayer.size)
 
+    override var value: Double = 0.0
+    override var sum: Double = 0.0
+
+    override var δ: Double = 0.0
+    override var ΔW: ArrayList<Double> = ArrayList(prevLayer.size)
     init {
         val r: Random = Random()
-        for (i in weights.indices) {
-            weights[i] = r.nextDouble()
+        for (i in prevLayer.indices) {
+            weights.add(r.nextDouble())
         }
     }
 
-    override fun calculateState(): Double {
-        var sum: Double = 0.0
-        for (i in inputNeurons.indices) {
-            sum += inputNeurons[i].value * weights[i]
+    override fun calculateState() {
+        sum = 0.0
+        for (i in prevLayer.indices) {
+            sum += prevLayer[i].value * weights[i]
         }
-        return activationFunction(sum)
+        value = activationFunction(sum)
     }
 
     /* Логистическая функция */
@@ -28,7 +34,7 @@ class LogisticNeuron(inputSize: Int) : Neuron() {
     }
 
     /* Производная логистической функции */
-    fun activationFunctionDerivative(x: Double): Double {
+    override fun activationFunctionDerivative(x: Double): Double {
         val v = activationFunction(x)
         return v * (1 - v)
     }
