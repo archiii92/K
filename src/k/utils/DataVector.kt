@@ -4,6 +4,10 @@ import java.io.FileNotFoundException
 import java.util.*
 import kotlin.collections.ArrayList
 
+var dif: Double = 0.0
+var min: Double = 0.0
+var max: Double = 0.0
+
 fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, trainTestDivide: Int, dataFileName: String, inputLayerSize: Int, outputLayerSize: Int){
     val fileIn = ClassLoader.getSystemResourceAsStream(dataFileName) ?: throw FileNotFoundException(dataFileName)
 
@@ -15,8 +19,8 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     scanner.close()
 
     val dataValues = ArrayList<Double>()
-    var max = Double.MIN_VALUE
-    var min = Double.MAX_VALUE
+    max = Double.MIN_VALUE
+    min = Double.MAX_VALUE
 
     for (i in readedLines.indices){
         if (i == 0){
@@ -33,8 +37,10 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         dataValues.add(dataValue)
     }
 
+    dif = max - min
+
     for (i in dataValues.indices) {
-        dataValues[i] = (dataValues[i] - min) / (max - min)
+        dataValues[i] = (dataValues[i] - min) / dif
     }
 
     val trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100

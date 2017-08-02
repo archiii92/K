@@ -4,6 +4,8 @@ import k.neurons.InputNeuron
 import k.neurons.LogisticNeuron
 import k.neurons.Neuron
 import k.utils.DataVector
+import k.utils.dif
+import k.utils.min
 
 class MLP constructor(
         /* Настройка сети */
@@ -13,12 +15,12 @@ class MLP constructor(
 
         /* Настройка данных */
         val dataFileName: String = "gold", // Название файла с данными
-        val trainTestDivide: Int = 90, // Процент деления обучающего и тестового набора
+        val trainTestDivide: Int = 80, // Процент деления обучающего и тестового набора
 
         /* Настройка обучения */
-        val η: Double = 0.1, // Коэффициент обучения
+        val η: Double = 0.3, // Коэффициент обучения
         val errorThreshold: Double = 5e-6, // Желаемая погрешность 5 * 10 ^ -6
-        val iterationThreshold: Int = 30000
+        val iterationThreshold: Int = 10000
         ) {
     val trainData: ArrayList<DataVector> = ArrayList()
     val testData: ArrayList<DataVector> = ArrayList()
@@ -117,27 +119,47 @@ class MLP constructor(
                 calculateOutput(dataVector)
                 val result = getOutputValue()
                 for (i in dataVector.Forecast.indices) {
-                    error += Math.pow(result[i] - dataVector.Forecast[i], 2.0) / 2
+                    error += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
                 }
             }
-            error = error / (trainData.size)
-            error = Math.pow(error, 0.5)
+            error = error / (trainData.size - 1)
+            error = Math.sqrt(error)
+            error = error * dif + min
             System.out.println("Ошибка: " + error + " Итерация: " + iteration)
 
             iteration++
         } while (errorThreshold < error && iterationThreshold > iteration)
     }
 
+    fun test() {
+        var trainError: Double = 0.0
+        var testError: Double = 0.0
+
+        for (dataVector: DataVector in trainData) {
+            calculateOutput(dataVector)
+            val result = getOutputValue()
+            for (i in dataVector.Forecast.indices) {
+                trainError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
+                System.out.println(String.format("%1.1f | %1.1f", dataVector.Forecast[i], result[i]))
+            }
+        }
+        trainError = trainError / (trainData.size - 1)
+        trainError = Math.sqrt(trainError)
+        trainError = trainError * dif + min
+
+        System.out.println(String.format("Train %1.3f | Test %1.3f", trainError, trainError))
+    }
 
     private fun calculateOutput(dataVector: DataVector) {
         setInputValue(dataVector)
         calculateHiddenLayer()
         calculateOutputLayer()
-        //return getOutputValue()
     }
 
     private fun setInputValue(dataVector: DataVector) {
-        for (i in inputLayer.indices) inputLayer[i].value = dataVector.Window[i]
+        for (i in inputLayer.indices) {
+            inputLayer[i].value = dataVector.Window[i]
+        }
     }
 
     private fun calculateHiddenLayer() {

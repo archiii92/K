@@ -7,4 +7,5 @@ fun main(args: Array<String>) {
     mlp.prepareData()
     mlp.buildNetwork()
     mlp.learn()
+    mlp.test()
 }
