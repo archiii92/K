@@ -7,7 +7,7 @@ import k.utils.DataVector
 import k.utils.denormalized
 import k.utils.normalized
 
-class MLP constructor(
+class MLP(
         /* Настройка сети */
         val inputLayerSize: Int = 3, // Число входных нейронов = размер скользящего окна
         val hiddenLayerSize: Int = 6, // Число нейронов скрытого слоя

@@ -10,7 +10,7 @@ abstract class AbstractNeuron(prevLayer: ArrayList<Neuron>) : Neuron {
     override var sum: Double = 0.0
 
     override var δ: Double = 0.0
-    override var ΔW: ArrayList<Double> = ArrayList(prevLayer.size)
+    override var ΔW: ArrayList<Double> = ArrayList<Double>(prevLayer.size)
 
     init {
         val r: Random = Random()
