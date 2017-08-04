@@ -12,5 +12,7 @@ interface Neuron {
 
     fun calculateState()
 
+    fun activationFunction(x: Double): Double
+
     fun activationFunctionDerivative(x: Double): Double
 }

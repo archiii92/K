@@ -1,24 +1,24 @@
 package k.nets
 
+import k.neurons.HyperbolicTangentNeuron
 import k.neurons.InputNeuron
-import k.neurons.LogisticNeuron
 import k.neurons.Neuron
 import k.utils.DataVector
-import k.utils.dif
-import k.utils.min
+import k.utils.denormalized
+import k.utils.normalized
 
 class MLP constructor(
         /* Настройка сети */
         val inputLayerSize: Int = 3, // Число входных нейронов = размер скользящего окна
-        val hiddenLayerSize: Int = 12, // Число нейронов скрытого слоя
+        val hiddenLayerSize: Int = 6, // Число нейронов скрытого слоя
         val outputLayerSize: Int = 1, // Число выходных нейронов = размер прогноза
 
         /* Настройка данных */
-        val dataFileName: String = "gold", // Название файла с данными
+        val dataFileName: String = "gold.txt", // Название файла с данными // gold.txt temperature.csv
         val trainTestDivide: Int = 80, // Процент деления обучающего и тестового набора
 
         /* Настройка обучения */
-        val η: Double = 0.3, // Коэффициент обучения
+        val η: Double = 0.01, // Коэффициент обучения
         val errorThreshold: Double = 5e-6, // Желаемая погрешность 5 * 10 ^ -6
         val iterationThreshold: Int = 10000
         ) {
@@ -43,14 +43,14 @@ class MLP constructor(
 
         i = 0
         while (i < hiddenLayerSize) {
-            val hyperbolicTangentNeuron: Neuron = LogisticNeuron(inputLayer)
+            val hyperbolicTangentNeuron: Neuron = HyperbolicTangentNeuron(inputLayer)
             hiddenLayer.add(hyperbolicTangentNeuron)
             i++
         }
 
         i = 0
         while (i < outputLayerSize) {
-            val outputNeuron: Neuron = LogisticNeuron(hiddenLayer)
+            val outputNeuron: Neuron = HyperbolicTangentNeuron(hiddenLayer)
             outputLayer.add(outputNeuron)
             i++
         }
@@ -65,12 +65,12 @@ class MLP constructor(
             for (dataVector: DataVector in trainData) {
 
                 calculateOutput(dataVector)
-
+                val result: ArrayList<Double> = getOutputValue()
                 // Обратный проход сигнала через выходной слой
                 for (i in outputLayer.indices) {
                     val outputNeuron: Neuron = outputLayer[i]
                     // δ = (y - d) * (df(u2) / du2)
-                    outputNeuron.δ = (outputNeuron.value - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
+                    outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
 
                     // ΔW = - η * δ * v
                     outputNeuron.ΔW = ArrayList(hiddenLayerSize)
@@ -122,9 +122,7 @@ class MLP constructor(
                     error += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
                 }
             }
-            error = error / (trainData.size - 1)
-            error = Math.sqrt(error)
-            error = error * dif + min
+            error = Math.sqrt(error / (trainData.size))
             System.out.println("Ошибка: " + error + " Итерация: " + iteration)
 
             iteration++
@@ -143,11 +141,19 @@ class MLP constructor(
                 System.out.println(String.format("%1.1f | %1.1f", dataVector.Forecast[i], result[i]))
             }
         }
-        trainError = trainError / (trainData.size - 1)
-        trainError = Math.sqrt(trainError)
-        trainError = trainError * dif + min
+        trainError = Math.sqrt(trainError / (trainData.size))
 
-        System.out.println(String.format("Train %1.3f | Test %1.3f", trainError, trainError))
+        for (dataVector: DataVector in testData) {
+            calculateOutput(dataVector)
+            val result = getOutputValue()
+            for (i in dataVector.Forecast.indices) {
+                testError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
+                System.out.println(String.format("%1.1f | %1.1f", dataVector.Forecast[i], result[i]))
+            }
+        }
+        testError = Math.sqrt(testError / (testData.size))
+
+        System.out.println(String.format("Train %1.3f | Test %1.3f", trainError, testError))
     }
 
     private fun calculateOutput(dataVector: DataVector) {
@@ -158,7 +164,8 @@ class MLP constructor(
 
     private fun setInputValue(dataVector: DataVector) {
         for (i in inputLayer.indices) {
-            inputLayer[i].value = dataVector.Window[i]
+            val normalizedValue = normalized(dataVector.Window[i])
+            inputLayer[i].value = normalizedValue
         }
     }
 
@@ -175,6 +182,6 @@ class MLP constructor(
     }
 
     private fun getOutputValue(): ArrayList<Double> {
-        return ArrayList(outputLayer.map { x -> x.value })
+        return ArrayList(outputLayer.map { x -> denormalized(x.value) })
     }
 }

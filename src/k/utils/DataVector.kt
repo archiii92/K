@@ -39,10 +39,6 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
 
     dif = max - min
 
-    for (i in dataValues.indices) {
-        dataValues[i] = (dataValues[i] - min) / dif
-    }
-
     val trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100
 
     var i = 0
@@ -67,6 +63,14 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         }
         i++
     }
+}
+
+fun normalized(value: Double): Double {
+    return (value - min) / dif
+}
+
+fun denormalized(value: Double): Double {
+    return value * dif + min
 }
 
 class DataVector(windowSize: Int, forecastSize: Int) {
