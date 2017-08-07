@@ -1,8 +1,8 @@
 package k.neurons
 
 interface Neuron {
-    var prevLayer: ArrayList<Neuron>
-    var weights: ArrayList<Double>
+    val prevLayer: ArrayList<Neuron>
+    val weights: ArrayList<Double>
 
     var value: Double
     var sum: Double

@@ -4,36 +4,20 @@ import k.neurons.HyperbolicTangentNeuron
 import k.neurons.InputNeuron
 import k.neurons.Neuron
 import k.utils.DataVector
-import k.utils.denormalized
-import k.utils.normalized
 
-class MLP(
-        /* Настройка сети */
-        val inputLayerSize: Int = 3, // Число входных нейронов = размер скользящего окна
-        val hiddenLayerSize: Int = 6, // Число нейронов скрытого слоя
-        val outputLayerSize: Int = 1, // Число выходных нейронов = размер прогноза
+open class MLP(dataFileName: String,
+               trainTestDivide: Int,
+               inputLayerSize: Int,
+               outputLayerSize: Int,
+               val hiddenLayerSize: Int,
+               val η: Double,
+               val errorThreshold: Double,
+               val iterationThreshold: Int
+) : AbstractNeuralNetwork(dataFileName, trainTestDivide, inputLayerSize, outputLayerSize) {
 
-        /* Настройка данных */
-        val dataFileName: String = "gold.txt", // Название файла с данными // gold.txt temperature.csv
-        val trainTestDivide: Int = 80, // Процент деления обучающего и тестового набора
-
-        /* Настройка обучения */
-        val η: Double = 0.01, // Коэффициент обучения
-        val errorThreshold: Double = 5e-6, // Желаемая погрешность 5 * 10 ^ -6
-        val iterationThreshold: Int = 10000
-        ) {
-    val trainData: ArrayList<DataVector> = ArrayList()
-    val testData: ArrayList<DataVector> = ArrayList()
-
-    val inputLayer: ArrayList<Neuron> = ArrayList(inputLayerSize)
     val hiddenLayer: ArrayList<Neuron> = ArrayList(hiddenLayerSize)
-    val outputLayer: ArrayList<Neuron> = ArrayList(outputLayerSize)
 
-    fun prepareData() {
-        k.utils.readData(trainData, testData, trainTestDivide, dataFileName, inputLayerSize, outputLayerSize)
-    }
-
-    fun buildNetwork() {
+    override fun buildNetwork() {
         var i: Int = 0
         while (i < inputLayerSize) {
             val inputNeuron: Neuron = InputNeuron()
@@ -57,9 +41,9 @@ class MLP(
     }
 
     /* Обучение производится с помощью алгоритма обратного распространения ошибки */
-    fun learn() {
+    override fun learn() {
         var iteration: Int = 0
-        var error: Double = 0.0
+        var error: Double
 
         do {
             for (dataVector: DataVector in trainData) {
@@ -129,59 +113,15 @@ class MLP(
         } while (errorThreshold < error && iterationThreshold > iteration)
     }
 
-    fun test() {
-        var trainError: Double = 0.0
-        var testError: Double = 0.0
-
-        for (dataVector: DataVector in trainData) {
-            calculateOutput(dataVector)
-            val result = getOutputValue()
-            for (i in dataVector.Forecast.indices) {
-                trainError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-                System.out.println(String.format("%1.1f | %1.1f", dataVector.Forecast[i], result[i]))
-            }
-        }
-        trainError = Math.sqrt(trainError / (trainData.size))
-
-        for (dataVector: DataVector in testData) {
-            calculateOutput(dataVector)
-            val result = getOutputValue()
-            for (i in dataVector.Forecast.indices) {
-                testError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-                System.out.println(String.format("%1.1f | %1.1f", dataVector.Forecast[i], result[i]))
-            }
-        }
-        testError = Math.sqrt(testError / (testData.size))
-
-        System.out.println(String.format("Train %1.3f | Test %1.3f", trainError, testError))
-    }
-
-    private fun calculateOutput(dataVector: DataVector) {
+    override fun calculateOutput(dataVector: DataVector) {
         setInputValue(dataVector)
         calculateHiddenLayer()
         calculateOutputLayer()
     }
 
-    private fun setInputValue(dataVector: DataVector) {
-        for (i in inputLayer.indices) {
-            val normalizedValue = normalized(dataVector.Window[i])
-            inputLayer[i].value = normalizedValue
-        }
-    }
-
-    private fun calculateHiddenLayer() {
+    override fun calculateHiddenLayer() {
         for (neuron: Neuron in hiddenLayer) {
             neuron.calculateState()
         }
-    }
-
-    private fun calculateOutputLayer() {
-        for (neuron: Neuron in outputLayer) {
-            neuron.calculateState()
-        }
-    }
-
-    private fun getOutputValue(): ArrayList<Double> {
-        return ArrayList(outputLayer.map { x -> denormalized(x.value) })
     }
 }
