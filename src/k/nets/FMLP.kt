@@ -11,8 +11,7 @@ class FMLP(dataFileName: String,
            errorThreshold: Double,
            iterationThreshold: Int
 ) : MLP(dataFileName, trainTestDivide, inputLayerSize, outputLayerSize, hiddenLayerSize, η, errorThreshold, iterationThreshold) {
-
-
+    
     override fun buildNetwork() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -28,5 +27,4 @@ class FMLP(dataFileName: String,
     override fun calculateHiddenLayer() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
 }

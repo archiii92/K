@@ -20,10 +20,7 @@ abstract class AbstractNeuron(prevLayer: ArrayList<Neuron>) : Neuron {
     }
 
     final override fun calculateState() {
-        sum = 0.0
-        for (i in prevLayer.indices) {
-            sum += prevLayer[i].value * weights[i]
-        }
+        sum = prevLayer.indices.sumByDouble { prevLayer[it].value * weights[it] }
         value = activationFunction(sum)
     }
 }

@@ -4,7 +4,7 @@ import k.nets.MLP
 import k.nets.NeuralNetwork
 
 fun main(args: Array<String>) {
-    val mlp: NeuralNetwork = MLP(
+    val neuralNetwork: NeuralNetwork = MLP(
             /* Настройка данных */
             "gold.txt", // Название файла с данными // gold.txt temperature.csv
             80, // Процент деления обучающего и тестового набора
@@ -16,11 +16,12 @@ fun main(args: Array<String>) {
 
             /* Настройка обучения */
             0.01, // Коэффициент обучения
-            5e-6, // Желаемая погрешность
-            10000          // Число итераций обучения
+            0.000001, // Желаемая минимальная разница погрешностей
+            10000 // Максимальное число итераций обучения
     )
-    mlp.prepareData()
-    mlp.buildNetwork()
-    mlp.learn()
-    mlp.test()
+
+    neuralNetwork.prepareData()
+    neuralNetwork.buildNetwork()
+    neuralNetwork.learn()
+    neuralNetwork.test()
 }
