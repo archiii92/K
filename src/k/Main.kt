@@ -1,17 +1,19 @@
 package k
 
-import k.nets.MLP
+import k.nets.FMLP
 import k.nets.NeuralNetwork
 
 fun main(args: Array<String>) {
 
-    val neuralNetwork: NeuralNetwork = MLP(
+    val neuralNetwork: NeuralNetwork = FMLP(
             "gold.txt",
             80,
             3,
-            //3,
+            3,
             6,
             1,
+            0.0001,
+            10000,
             0.01,
             0.000001,
             10000

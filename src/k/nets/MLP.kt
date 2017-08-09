@@ -16,8 +16,8 @@ open class MLP(
         val hiddenLayerSize: Int,
         val outputLayerSize: Int,
         val η: Double,
-        val errorThreshold: Double,
-        val iterationThreshold: Int
+        val errorThresholdBackPropagation: Double,
+        val iterationThresholdBackPropagation: Int
 ) : NeuralNetwork {
     override val trainData: ArrayList<DataVector> = ArrayList()
     override val testData: ArrayList<DataVector> = ArrayList()
@@ -25,6 +25,10 @@ open class MLP(
     val inputLayer: ArrayList<Neuron> = ArrayList(hiddenLayerSize)
     val hiddenLayer: ArrayList<AbstractMLPNeuron> = ArrayList(hiddenLayerSize)
     val outputLayer: ArrayList<AbstractMLPNeuron> = ArrayList(outputLayerSize)
+
+    final override fun prepareData() {
+        k.utils.readData(trainData, testData, trainTestDivide, dataFileName, inputLayerSize, outputLayerSize)
+    }
 
     override fun buildNetwork() {
         var i: Int = 0
@@ -52,22 +56,6 @@ open class MLP(
     /* Обучение производится с помощью алгоритма обратного распространения ошибки */
     override fun learn() {
         backPropagation()
-    }
-
-    override fun calculateOutput(dataVector: DataVector) {
-        setInputValue(dataVector)
-        calculateHiddenLayer()
-        calculateOutputLayer()
-    }
-
-    override fun calculateHiddenLayer() {
-        for (neuron: Neuron in hiddenLayer) {
-            neuron.calculateState()
-        }
-    }
-
-    final override fun prepareData() {
-        k.utils.readData(trainData, testData, trainTestDivide, dataFileName, inputLayerSize, outputLayerSize)
     }
 
     final override fun test() {
@@ -104,6 +92,16 @@ open class MLP(
         }
     }
 
+    override fun calculateOutput(dataVector: DataVector) {
+        setInputValue(dataVector)
+        calculateHiddenLayer()
+        calculateOutputLayer()
+    }
+
+    final override fun calculateHiddenLayer() {
+        hiddenLayer.forEach { neuron: Neuron -> neuron.calculateState() }
+    }
+
     final override fun calculateOutputLayer() {
         outputLayer.forEach { neuron: Neuron -> neuron.calculateState() }
     }
@@ -112,7 +110,7 @@ open class MLP(
         return ArrayList(outputLayer.map { x -> denormalized(x.value) })
     }
 
-    protected fun backPropagation() {
+    private fun backPropagation() {
         var iteration: Int = 0
         var prevError: Double = Double.MAX_VALUE
         var errorDiff: Double
@@ -140,7 +138,7 @@ open class MLP(
                 for (i in hiddenLayer.indices) {
                     val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[i]
 
-                    // δ = Σ (y - d) * (df(u1) / du1) * w * (df(u2) / du2)
+                    // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
                     hiddenNeuron.δ = 0.0
                     for (j in outputLayer.indices) {
                         hiddenNeuron.δ += outputLayer[j].δ * hiddenNeuron.weights[j]
@@ -185,6 +183,6 @@ open class MLP(
 
             iteration++
             prevError = curError
-        } while (errorThreshold < errorDiff && iterationThreshold > iteration)
+        } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
 }
