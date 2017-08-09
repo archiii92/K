@@ -1,7 +1,7 @@
 package k.neurons
 
 /* Нейрон с логистической функцией активации */
-class LogisticNeuron(prevLayer: ArrayList<Neuron>) : AbstractNeuron(prevLayer) {
+class LogisticNeuron(prevLayer: ArrayList<out Neuron>) : AbstractMLPNeuron(prevLayer) {
 
     var k: Double = 1.0 // Коэффициент логистической функции
 

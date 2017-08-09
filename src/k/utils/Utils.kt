@@ -7,7 +7,7 @@ var dif: Double = 0.0
 var min: Double = 0.0
 
 fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, trainTestDivide: Int, dataFileName: String, inputLayerSize: Int, outputLayerSize: Int) {
-    val fileIn = ClassLoader.getSystemResourceAsStream(dataFileName) ?: throw FileNotFoundException(dataFileName)
+    val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName)
 
     val scanner = Scanner(fileIn)
     val readedLines = ArrayList<String>()
@@ -72,3 +72,11 @@ fun denormalized(value: Double): Double {
 }
 
 fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
+
+fun getEuclideanDistance(x: ArrayList<Double>, c: ArrayList<Double>): Double {
+    var sum: Double = 0.0
+    for (i in c.indices) {
+        sum += Math.pow(x[i] - c[i], 2.0)
+    }
+    return Math.sqrt(sum)
+}

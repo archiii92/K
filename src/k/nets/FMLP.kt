@@ -2,14 +2,16 @@ package k.nets
 
 import k.utils.DataVector
 
-class FMLP(dataFileName: String,
-           trainTestDivide: Int,
-           inputLayerSize: Int,
-           outputLayerSize: Int,
-           hiddenLayerSize: Int,
-           η: Double,
-           errorThreshold: Double,
-           iterationThreshold: Int
+class FMLP(
+        dataFileName: String,
+        trainTestDivide: Int,
+        inputLayerSize: Int,
+        val fuzzyLayerSize: Int,
+        hiddenLayerSize: Int,
+        outputLayerSize: Int,
+        η: Double,
+        errorThreshold: Double,
+        iterationThreshold: Int
 ) : MLP(dataFileName, trainTestDivide, inputLayerSize, outputLayerSize, hiddenLayerSize, η, errorThreshold, iterationThreshold) {
     
     override fun buildNetwork() {

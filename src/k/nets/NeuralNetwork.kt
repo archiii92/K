@@ -1,6 +1,5 @@
 package k.nets
 
-import k.neurons.Neuron
 import k.utils.DataVector
 
 interface NeuralNetwork {
@@ -9,9 +8,6 @@ interface NeuralNetwork {
 
     val trainData: ArrayList<DataVector>
     val testData: ArrayList<DataVector>
-
-    val inputLayer: ArrayList<Neuron>
-    val outputLayer: ArrayList<Neuron>
 
     fun prepareData()
     fun buildNetwork()
