@@ -22,7 +22,7 @@ open class MLP(
     override val trainData: ArrayList<DataVector> = ArrayList()
     override val testData: ArrayList<DataVector> = ArrayList()
 
-    val inputLayer: ArrayList<Neuron> = ArrayList(hiddenLayerSize)
+    val inputLayer: ArrayList<Neuron> = ArrayList(inputLayerSize)
     val hiddenLayer: ArrayList<AbstractMLPNeuron> = ArrayList(hiddenLayerSize)
     val outputLayer: ArrayList<AbstractMLPNeuron> = ArrayList(outputLayerSize)
 
@@ -114,6 +114,7 @@ open class MLP(
         var iteration: Int = 0
         var prevError: Double = Double.MAX_VALUE
         var errorDiff: Double
+        var curError: Double
 
         do {
             for (dataVector: DataVector in trainData) {
@@ -167,7 +168,7 @@ open class MLP(
                     }
                 }
             }
-            var curError: Double = 0.0
+            curError = 0.0
 
             for (dataVector: DataVector in trainData) {
                 calculateOutput(dataVector)

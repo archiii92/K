@@ -73,10 +73,10 @@ fun denormalized(value: Double): Double {
 
 fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
 
-fun getEuclideanDistance(x: ArrayList<Double>, c: ArrayList<Double>): Double {
+fun getEuclideanDistance(v1: ArrayList<Double>, v2: DoubleArray): Double {
     var sum: Double = 0.0
-    for (i in c.indices) {
-        sum += Math.pow(x[i] - c[i], 2.0)
+    for (i in v2.indices) {
+        sum += Math.pow(v1[i] - v2[i], 2.0)
     }
     return Math.sqrt(sum)
 }

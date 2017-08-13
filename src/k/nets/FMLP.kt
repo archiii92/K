@@ -2,6 +2,7 @@ package k.nets
 
 import k.neurons.*
 import k.utils.DataVector
+import k.utils.getEuclideanDistance
 import java.util.*
 
 class FMLP(
@@ -16,7 +17,7 @@ class FMLP(
         η: Double,
         errorThresholdBackPropagation: Double,
         iterationThresholdBackPropagation: Int
-) : MLP(dataFileName, trainTestDivide, inputLayerSize, outputLayerSize, hiddenLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation) {
+) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation) {
 
     val fuzzyLayer: ArrayList<GaussianNeuron> = ArrayList(fuzzyLayerSize)
 
@@ -73,7 +74,7 @@ class FMLP(
 
         //val dataCount: Int = trainData.size
         val u: Array<DoubleArray> = Array(fuzzyLayerSize) { DoubleArray(trainData.size) }
-        val m: Int = 2 // m — это весовой коэффициент, который принимает значения из интервала [1, ∞), на практике часто принимают m = 2
+        val m: Double = 2.0 // m — это весовой коэффициент, который принимает значения из интервала [1, ∞), на практике часто принимают m = 2
 
         fillUMatrix(u)
         initCenters(u, m)
@@ -84,55 +85,69 @@ class FMLP(
     private fun fillUMatrix(u: Array<DoubleArray>) {
         val r: Random = Random()
 
-        var i: Int = 0
         var sum: Double = 0.0
-        val vector: DoubleArray = kotlin.DoubleArray(trainData.size)
-        while (i < fuzzyLayerSize) {
+        val vector: DoubleArray = DoubleArray(fuzzyLayerSize)
+        for (t in trainData.indices) {
 
-            for (j in trainData.indices) {
-                val value: Double = r.nextDouble()
-                vector[j] = value
-                sum += value
-            }
-
-            for (l in vector.indices) {
-                vector[l] /= sum // Нормируем значения коэффициентов, таким образом, чтобы они были от 0 до 1 и в сумме давали 1
-            }
-
-            sum = 0.0
-            i++
-        }
-    }
-
-    private fun initCenters(u: Array<DoubleArray>, m: Int) {
-        var iteration: Int = 0
-        var prevError: Double = Double.MAX_VALUE
-        var errorDiff: Double
-
-        do {
-            // Определить M центров c в соответствии с ∑(u) ^ m * x / ∑(u) ^ m
             var i: Int = 0
             while (i < fuzzyLayerSize) {
-
-                val center: ArrayList<Double> = fuzzyLayer[j].center
-
-                for (t in trainData.indices) {
-
-                    var numerator: Double = 0.0
-                    var denominator: Double = 0.0
-                    for (j in center.indices) {
-                        numerator += u[i][t] * trainData[t].Forecast[j]
-                    }
-
-                }
-
-
-
-
+                val value: Double = r.nextDouble()
+                vector[i] = value
+                sum += value
 
                 i++
             }
 
+            for (j in vector.indices) {
+                u[j][t] = vector[j] / sum // Нормируем значения коэффициентов, таким образом, чтобы они были от 0 до 1 и в сумме давали 1
+            }
+
+            //u[i] = vector
+
+            sum = 0.0
+        }
+    }
+
+    private fun initCenters(u: Array<DoubleArray>, m: Double) {
+        var iteration: Int = 0
+        var prevError: Double = Double.MAX_VALUE
+        var errorDiff: Double
+        var curError: Double
+
+        do {
+            // Определить M центров c - ci = ∑(uit) ^ m * xt / ∑(uit) ^ m
+            var i: Int = 0
+            while (i < fuzzyLayerSize) {
+
+                val center: DoubleArray = fuzzyLayer[i].center
+                //center.clear()
+
+                var denominator: Double = 0.0
+
+                for (t in trainData.indices) {
+                    val uit = Math.pow(u[i][t], m)
+                    for (j in trainData[t].Window.indices) {
+                        center[j] += uit * trainData[t].Window[j]
+                    }
+                    denominator += uit
+                }
+
+                for (j in center.indices) {
+                    center[j] /= denominator
+                }
+                i++
+            }
+
+            // Рассчитать значение функции погрешности E = ∑∑(uit) ^ m * dit ^ 2
+            i = 0
+            curError = 0.0
+            while (i < fuzzyLayerSize) {
+                for (t in trainData.indices) {
+                    curError += Math.pow(u[i][t], m) * getEuclideanDistance(fuzzyLayer[i].center, trainData[t].Window)
+
+                }
+                i++
+            }
 
 
 

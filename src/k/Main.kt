@@ -6,7 +6,7 @@ import k.nets.NeuralNetwork
 fun main(args: Array<String>) {
 
     val neuralNetwork: NeuralNetwork = FMLP(
-            "gold.txt",
+            "temperature.csv", // gold.txt temperature.csv
             80,
             3,
             3,
