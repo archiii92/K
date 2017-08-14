@@ -2,6 +2,7 @@ package k.nets
 
 import k.neurons.*
 import k.utils.DataVector
+import k.utils.format
 import k.utils.getEuclideanDistance
 import java.util.*
 
@@ -20,9 +21,6 @@ class FMLP(
 ) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation) {
 
     val fuzzyLayer: ArrayList<GaussianNeuron> = ArrayList(fuzzyLayerSize)
-
-    fun array2dOfDouble(sizeOuter: Int, sizeInner: Int): Array<DoubleArray>
-            = Array(sizeOuter) { DoubleArray(sizeInner) }
 
     override fun buildNetwork() {
         var i: Int = 0
@@ -72,7 +70,6 @@ class FMLP(
 
     private fun fuzzyCMeans() {
 
-        //val dataCount: Int = trainData.size
         val u: Array<DoubleArray> = Array(fuzzyLayerSize) { DoubleArray(trainData.size) }
         val m: Double = 2.0 // m — это весовой коэффициент, который принимает значения из интервала [1, ∞), на практике часто принимают m = 2
 
@@ -102,8 +99,6 @@ class FMLP(
                 u[j][t] = vector[j] / sum // Нормируем значения коэффициентов, таким образом, чтобы они были от 0 до 1 и в сумме давали 1
             }
 
-            //u[i] = vector
-
             sum = 0.0
         }
     }
@@ -114,13 +109,12 @@ class FMLP(
         var errorDiff: Double
         var curError: Double
 
-        do {
+        while (true) {
             // Определить M центров c - ci = ∑(uit) ^ m * xt / ∑(uit) ^ m
             var i: Int = 0
             while (i < fuzzyLayerSize) {
 
                 val center: DoubleArray = fuzzyLayer[i].center
-                //center.clear()
 
                 var denominator: Double = 0.0
 
@@ -143,20 +137,75 @@ class FMLP(
             curError = 0.0
             while (i < fuzzyLayerSize) {
                 for (t in trainData.indices) {
-                    curError += Math.pow(u[i][t], m) * getEuclideanDistance(fuzzyLayer[i].center, trainData[t].Window)
-
+                    curError += Math.pow(u[i][t], m) * Math.pow(getEuclideanDistance(fuzzyLayer[i].center, trainData[t].Window), 2.0)
                 }
                 i++
             }
 
-
-
+            errorDiff = prevError - curError
+            prevError = curError
 
             iteration++
-        } while (errorThresholdFuzzyCMeans < errorDiff && iterationThresholdFuzzyCMeans > iteration)
+
+            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
+
+            if (errorThresholdFuzzyCMeans < errorDiff && iterationThresholdFuzzyCMeans > iteration) {
+                break
+            }
+
+            i = 0
+            while (i < fuzzyLayerSize) {
+                for (t in trainData.indices) {
+
+                    val dit: Double = Math.pow(getEuclideanDistance(fuzzyLayer[i].center, trainData[t].Window), 2.0)
+
+                    var denominator: Double = 0.0
+                    var k: Int = 0
+                    while (k < fuzzyLayerSize) {
+
+                        val dkt: Double = Math.pow(getEuclideanDistance(fuzzyLayer[k].center, trainData[t].Window), 2.0)
+                        denominator += Math.pow(dit / dkt, 1 / (m - 1))
+
+                        k++
+                    }
+
+                    u[i][t] = 1 / denominator
+                }
+                i++
+            }
+        }
     }
 
     private fun calcRadiuses() {
+        var i: Int = 0
+        while (i < fuzzyLayerSize) {
 
+            val norms: DoubleArray = DoubleArray(fuzzyLayerSize)
+
+            var j: Int = 0
+            while (j < fuzzyLayerSize) {
+
+                var norm: Double = 0.0
+
+                for (k in trainData.indices) {
+                    norm += Math.pow(fuzzyLayer[i].center[k] - fuzzyLayer[j].center[k], 2.0)
+                }
+
+                norms[j] = Math.sqrt(norm)
+                j++
+            }
+
+            norms.sort()
+            var radius: Double = 0.0
+            for (k in norms.indices) {
+                radius += Math.pow(norms[i], 2.0)
+            }
+
+            radius = Math.sqrt(radius / norms.size)
+
+            fuzzyLayer[i].radius = radius
+
+            i++
+        }
     }
 }

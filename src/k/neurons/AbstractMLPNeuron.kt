@@ -8,15 +8,15 @@ abstract class AbstractMLPNeuron(prevLayer: ArrayList<out Neuron>) : Neuron {
     var sum: Double = 0.0
 
     val prevLayer: ArrayList<out Neuron> = prevLayer
-    val weights: ArrayList<Double> = ArrayList(prevLayer.size)
+    val weights: DoubleArray = DoubleArray(prevLayer.size)
 
     var δ: Double = 0.0
-    var ΔW: ArrayList<Double> = ArrayList<Double>(prevLayer.size)
+    var ΔW: DoubleArray = DoubleArray(prevLayer.size)
 
     init {
         val r: Random = Random()
         for (i in prevLayer.indices) {
-            weights.add(r.nextDouble())
+            weights[i] = r.nextDouble()
         }
     }
 

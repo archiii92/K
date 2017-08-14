@@ -7,17 +7,11 @@ class GaussianNeuron(val prevLayer: ArrayList<Neuron>, override var value: Doubl
     val center: DoubleArray = DoubleArray(prevLayer.size)
     var radius: Double = 1.0
 
-//    init {
-//        for(i in center.indices){
-//        center[i] = 0.0
-//    }
-//}
-
     override fun calculateState() {
-        val x: ArrayList<Double> = ArrayList(prevLayer.size)
+        val x: DoubleArray = DoubleArray(prevLayer.size)
 
         for (i in prevLayer.indices) {
-            x.add(prevLayer[i].value)
+            x[i] = prevLayer[i].value
         }
 
         val dist = getEuclideanDistance(x, center)

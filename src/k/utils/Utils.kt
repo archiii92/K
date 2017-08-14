@@ -45,13 +45,13 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         var j = 0
 
         while (j < inputLayerSize) {
-            dataVector.Window.add(dataValues[i + j])
+            dataVector.Window[j] = dataValues[i + j]
             j++
         }
 
         j = 0
         while (j < outputLayerSize) {
-            dataVector.Forecast.add(dataValues[i + inputLayerSize + j])
+            dataVector.Forecast[j] = dataValues[i + inputLayerSize + j]
             j++
         }
         if (i < trainDataCount) {
@@ -73,7 +73,7 @@ fun denormalized(value: Double): Double {
 
 fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
 
-fun getEuclideanDistance(v1: ArrayList<Double>, v2: DoubleArray): Double {
+fun getEuclideanDistance(v1: DoubleArray, v2: DoubleArray): Double {
     var sum: Double = 0.0
     for (i in v2.indices) {
         sum += Math.pow(v1[i] - v2[i], 2.0)

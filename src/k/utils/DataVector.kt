@@ -1,6 +1,6 @@
 package k.utils
 
 class DataVector(windowSize: Int, forecastSize: Int) {
-    val Window: ArrayList<Double> = ArrayList(windowSize)
-    val Forecast: ArrayList<Double> = ArrayList(forecastSize)
+    val Window: DoubleArray = DoubleArray(windowSize)
+    val Forecast: DoubleArray = DoubleArray(forecastSize)
 }

@@ -128,10 +128,10 @@ open class MLP(
                     outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
 
                     // ΔW = - η * δ * v
-                    outputNeuron.ΔW = ArrayList(hiddenLayerSize)
+                    //outputNeuron.ΔW = ArrayList(hiddenLayerSize)
 
                     for (j in outputNeuron.prevLayer.indices) {
-                        outputNeuron.ΔW.add(-η * outputNeuron.δ * outputNeuron.prevLayer[j].value)
+                        outputNeuron.ΔW[j] = -η * outputNeuron.δ * outputNeuron.prevLayer[j].value
                     }
                 }
 
@@ -147,10 +147,10 @@ open class MLP(
                     hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
 
                     // ΔW = - η * δ * x
-                    hiddenNeuron.ΔW = ArrayList(inputLayerSize)
+                    //hiddenNeuron.ΔW = ArrayList(inputLayerSize)
 
                     for (j in hiddenNeuron.prevLayer.indices) {
-                        hiddenNeuron.ΔW.add(-η * hiddenNeuron.δ * hiddenNeuron.prevLayer[j].value)
+                        hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.prevLayer[j].value
                     }
                 }
 
@@ -180,10 +180,10 @@ open class MLP(
             curError = Math.sqrt(curError / (trainData.size))
             errorDiff = Math.abs(prevError - curError)
 
-            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
-
             iteration++
             prevError = curError
+
+            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
 }
