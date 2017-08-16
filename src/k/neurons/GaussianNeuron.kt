@@ -4,7 +4,7 @@ import k.utils.getEuclideanDistance
 
 class GaussianNeuron(val prevLayer: ArrayList<Neuron>, override var value: Double = 0.0) : Neuron {
 
-    val center: DoubleArray = DoubleArray(prevLayer.size)
+    var center: DoubleArray = DoubleArray(prevLayer.size)
     var radius: Double = 1.0
 
     override fun calculateState() {

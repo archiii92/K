@@ -113,6 +113,12 @@ class FMLP(
             // Определить M центров c - ci = ∑(uit) ^ m * xt / ∑(uit) ^ m
             var i: Int = 0
             while (i < fuzzyLayerSize) {
+                fuzzyLayer[i].center = DoubleArray(fuzzyLayer[i].center.size)
+                i++
+            }
+
+            i = 0
+            while (i < fuzzyLayerSize) {
 
                 val center: DoubleArray = fuzzyLayer[i].center
 
@@ -142,17 +148,19 @@ class FMLP(
                 i++
             }
 
-            errorDiff = prevError - curError
-            prevError = curError
+            errorDiff = Math.abs(prevError - curError)
 
             iteration++
 
-            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
+            System.out.println("Пред: ${prevError.format(7)} Тек: ${curError.format(7)} Раз: ${errorDiff.format(7)} Итер: $iteration")
 
-            if (errorThresholdFuzzyCMeans < errorDiff && iterationThresholdFuzzyCMeans > iteration) {
+            prevError = curError
+
+            if (errorThresholdFuzzyCMeans > errorDiff && iterationThresholdFuzzyCMeans <= iteration) {
                 break
             }
 
+            // Рассчитать новые значения u по формуле 1 / ∑ (dit ^ 2 / dkt ^ 2) ^ (1 / (m - 1))
             i = 0
             while (i < fuzzyLayerSize) {
                 for (t in trainData.indices) {
@@ -180,28 +188,37 @@ class FMLP(
         var i: Int = 0
         while (i < fuzzyLayerSize) {
 
-            val norms: DoubleArray = DoubleArray(fuzzyLayerSize)
+            val norms: DoubleArray = DoubleArray(fuzzyLayerSize - 1)
 
             var j: Int = 0
+            var q = 0
             while (j < fuzzyLayerSize) {
 
-                var norm: Double = 0.0
+                if (i != j) {
+                    var norm: Double = 0.0
 
-                for (k in trainData.indices) {
-                    norm += Math.pow(fuzzyLayer[i].center[k] - fuzzyLayer[j].center[k], 2.0)
+                    var k: Int = 0
+                    while (k < inputLayerSize) {
+                        norm += Math.pow(fuzzyLayer[i].center[k] - fuzzyLayer[j].center[k], 2.0)
+                        k++
+                    }
+
+                    norms[q] = Math.sqrt(norm)
+                    q++
                 }
-
-                norms[j] = Math.sqrt(norm)
                 j++
             }
 
             norms.sort()
+
             var radius: Double = 0.0
-            for (k in norms.indices) {
-                radius += Math.pow(norms[i], 2.0)
+            var k = 0
+            while (k < 4 && k < norms.size) {
+                radius += Math.pow(norms[k], 2.0)
+                k++
             }
 
-            radius = Math.sqrt(radius / norms.size)
+            radius = Math.sqrt(radius / k)
 
             fuzzyLayer[i].radius = radius
 
