@@ -15,10 +15,10 @@ fun main(args: Array<String>) {
             1,
             0.0000001,
             300,
-            0.01,
-            0.000001,
+            0.005,
+            0.0000001,
             10000,
-            4
+            3
     )
 
 //    val neuralNetwork: NeuralNetwork = MLP(

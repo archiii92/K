@@ -265,22 +265,37 @@ class FMLP(
                     }
                 }
 
-//                for (i in fuzzyLayer.indices) {
-//                    val fuzzyNeuron = fuzzyLayer[i]
-//
-//                    var dedw = 0.0 // (4.14а)
-//                    for (s in hiddenLayer.indices) {
-//                        dedw += hiddenLayer[s].δ
-//                    }
-//                    dedw *= fuzzyNeuron.value
-//
-//                    var dedc = 0.0
-//                    for (s in hiddenLayer.indices) {
-//                        dedc += hiddenLayer[s].δ * hiddenLayer[s].weights[i]
-//                    }
-//
-//                    dedc *= fuzzyNeuron.value *
-//                }
+                for (i in fuzzyLayer.indices) {
+                    val fuzzyNeuron = fuzzyLayer[i]
+
+                    fuzzyNeuron.δ = 0.0
+                    for (s in hiddenLayer.indices) {
+                        fuzzyNeuron.δ += hiddenLayer[s].δ
+                    }
+                    fuzzyNeuron.δ *= fuzzyNeuron.value
+
+                    for (j in fuzzyNeuron.prevLayer.indices) {
+                        fuzzyNeuron.ΔW[j] = -η * fuzzyNeuron.δ
+                    }
+
+                    var constant = 0.0
+                    for (s in hiddenLayer.indices) {
+                        constant = hiddenLayer[s].δ * hiddenLayer[s].weights[i] * fuzzyNeuron.value
+                    }
+
+                    for (j in fuzzyNeuron.center.indices) {
+                        val c = constant * (fuzzyNeuron.prevLayer[j].value - fuzzyNeuron.center[j]) / Math.pow(fuzzyNeuron.radius, 2.0)
+                        val r = c / fuzzyNeuron.radius
+
+                        fuzzyNeuron.center[j] += -η * c
+                        fuzzyNeuron.radius += -η * r
+                    }
+
+
+                    for (i in fuzzyNeuron.weights.indices) {
+                        fuzzyNeuron.weights[i] += fuzzyNeuron.ΔW[i]
+                    }
+                }
 
                 // Уточнение весов скрытого слоя
                 for (hiddenNeuron: AbstractMLPNeuron in hiddenLayer) {
@@ -311,7 +326,7 @@ class FMLP(
             iteration++
             prevError = curError
 
-            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
-        } while (errorThresholdBackPropagation < errorDiff || iterationThresholdBackPropagation > iteration)
+            System.out.println("Пред: ${prevError.format(8)} Тек: ${curError.format(8)} Раз: ${errorDiff.format(8)} Итер: $iteration")
+        } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
 }
