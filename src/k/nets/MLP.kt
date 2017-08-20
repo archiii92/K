@@ -85,7 +85,7 @@ open class MLP(
         System.out.println("Трен: ${trainError.format(6)} Тест: ${testError.format(6)}")
     }
 
-    final override fun setInputValue(dataVector: DataVector) {
+    override fun setInputValue(dataVector: DataVector) {
         for (i in inputLayer.indices) {
             val normalizedValue = normalized(dataVector.Window[i])
             inputLayer[i].value = normalizedValue
@@ -128,8 +128,6 @@ open class MLP(
                     outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
 
                     // ΔW = - η * δ * v
-                    //outputNeuron.ΔW = ArrayList(hiddenLayerSize)
-
                     for (j in outputNeuron.prevLayer.indices) {
                         outputNeuron.ΔW[j] = -η * outputNeuron.δ * outputNeuron.prevLayer[j].value
                     }
@@ -141,14 +139,12 @@ open class MLP(
 
                     // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
                     hiddenNeuron.δ = 0.0
-                    for (j in outputLayer.indices) {
-                        hiddenNeuron.δ += outputLayer[j].δ * hiddenNeuron.weights[j]
+                    for (s in outputLayer.indices) {
+                        hiddenNeuron.δ += outputLayer[s].δ * outputLayer[s].weights[i]
                     }
                     hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
 
                     // ΔW = - η * δ * x
-                    //hiddenNeuron.ΔW = ArrayList(inputLayerSize)
-
                     for (j in hiddenNeuron.prevLayer.indices) {
                         hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.prevLayer[j].value
                     }

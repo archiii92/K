@@ -7,7 +7,7 @@ var dif: Double = 0.0
 var min: Double = 0.0
 
 fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, trainTestDivide: Int, dataFileName: String, inputLayerSize: Int, outputLayerSize: Int) {
-    val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName)
+    val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName) as Throwable
 
     val scanner = Scanner(fileIn)
     val readedLines = ArrayList<String>()

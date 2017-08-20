@@ -1,27 +1,29 @@
 package k
 
 import k.nets.FMLP
+import k.nets.MLP
 import k.nets.NeuralNetwork
 
 fun main(args: Array<String>) {
 
     val neuralNetwork: NeuralNetwork = FMLP(
-            "gold.txt", // gold.txt temperature.csv
+            "temperature.csv", // gold.txt temperature.csv
             80,
             3,
-            30, // 9 для temperature.csv
-            12,
+            6,
+            6,
             1,
             0.0000001,
             300,
-            0.005,
+            0.01,
             0.000001,
-            10000
+            10000,
+            4
     )
 
 //    val neuralNetwork: NeuralNetwork = MLP(
 //        /* Настройка данных */
-//        "gold.txt", // Название файла с данными // gold.txt temperature.csv
+//        "temperature.csv", // Название файла с данными // gold.txt temperature.csv
 //        80, // Процент деления обучающего и тестового набора
 //
 //        /* Настройка сети */
@@ -32,7 +34,7 @@ fun main(args: Array<String>) {
 //        /* Настройка обучения */
 //        0.01, // Коэффициент обучения
 //        0.000001, // Желаемая минимальная разница погрешностей
-//        30000 // Максимальное число итераций обучения
+//        10000 // Максимальное число итераций обучения
 //)
 
     neuralNetwork.prepareData()
