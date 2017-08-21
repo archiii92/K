@@ -21,6 +21,7 @@ class FMLP(
         val neighborsCount: Int
 ) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation) {
 
+    //override val inputLayer: ArrayList<Neuron> = ArrayList(inputLayerSize)
     val fuzzyLayer: ArrayList<GaussianNeuron> = ArrayList(fuzzyLayerSize)
 
     override fun buildNetwork() {
@@ -37,6 +38,7 @@ class FMLP(
             fuzzyLayer.add(gaussianNeuron)
             i++
         }
+        //fuzzyLayer.add(InputNeuron(1.0))
 
         i = 0
         while (i < hiddenLayerSize) {
@@ -44,6 +46,7 @@ class FMLP(
             hiddenLayer.add(hyperbolicTangentNeuron)
             i++
         }
+        //hiddenLayer.add(InputNeuron(1.0))
 
         i = 0
         while (i < outputLayerSize) {
@@ -237,7 +240,7 @@ class FMLP(
                 val result: DoubleArray = getOutputValue()
                 // Обратный проход сигнала через выходной слой
                 for (i in outputLayer.indices) {
-                    val outputNeuron: AbstractMLPNeuron = outputLayer[i]
+                    val outputNeuron: AbstractMLPNeuron = outputLayer[i] as AbstractMLPNeuron
                     // δ = (y - d) * (df(u2) / du2)
                     outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
 
@@ -248,13 +251,15 @@ class FMLP(
                 }
 
                 // Обратный проход сигнала через скрытый слой
-                for (i in hiddenLayer.indices) {
-                    val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[i]
+                var k = 0
+                while (k < hiddenLayerSize) {
+                    val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[k] as AbstractMLPNeuron
 
                     // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
                     hiddenNeuron.δ = 0.0
                     for (s in outputLayer.indices) {
-                        hiddenNeuron.δ += outputLayer[s].δ * outputLayer[s].weights[i]
+                        val outputNeuron: AbstractMLPNeuron = outputLayer[s] as AbstractMLPNeuron
+                        hiddenNeuron.δ += outputNeuron.δ * outputNeuron.weights[k]
                     }
                     hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
 
@@ -262,38 +267,46 @@ class FMLP(
                     for (j in hiddenNeuron.prevLayer.indices) {
                         hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.prevLayer[j].value
                     }
+                    k++
                 }
 
                 for (i in fuzzyLayer.indices) {
                     val fuzzyNeuron = fuzzyLayer[i]
 
-                    var constant = 0.0
+                    var sum = 0.0
                     for (s in hiddenLayer.indices) {
-                        constant += hiddenLayer[s].δ * hiddenLayer[s].weights[i] * fuzzyNeuron.value
+                        val hiddenNeuron = hiddenLayer[s] as AbstractMLPNeuron
+                        sum += hiddenNeuron.δ * hiddenNeuron.weights[i] * fuzzyNeuron.value
                     }
-                    constant /= hiddenLayer.size
+                    //constant /= hiddenLayer.size
 
                     fuzzyNeuron.dEdr = 0.0
                     for (j in fuzzyNeuron.center.indices) {
-                        fuzzyNeuron.dEdc[j] = constant * (fuzzyNeuron.prevLayer[j].value - fuzzyNeuron.center[j]) / Math.pow(fuzzyNeuron.radius, 2.0)
+                        fuzzyNeuron.dEdc[j] = sum * (fuzzyNeuron.prevLayer[j].value - fuzzyNeuron.center[j]) / Math.pow(fuzzyNeuron.radius, 2.0)
                         fuzzyNeuron.dEdr += fuzzyNeuron.dEdc[j] / fuzzyNeuron.radius
                     }
 
                     fuzzyNeuron.dEdr /= fuzzyNeuron.center.size
                 }
 
-                // Уточнение весов выходного слоя
-                for (outputNeuron: AbstractMLPNeuron in outputLayer) {
-                    for (i in outputNeuron.weights.indices) {
-                        outputNeuron.weights[i] += outputNeuron.ΔW[i]
+                // Уточнение весов вsходного слоя
+                k = 0
+                while (k < outputLayerSize) {
+                    val outputNeuron: AbstractMLPNeuron = outputLayer[k] as AbstractMLPNeuron
+                    for (j in outputNeuron.weights.indices) {
+                        outputNeuron.weights[j] += outputNeuron.ΔW[j]
                     }
+                    k++
                 }
 
                 // Уточнение весов скрытого слоя
-                for (hiddenNeuron: AbstractMLPNeuron in hiddenLayer) {
-                    for (i in hiddenNeuron.weights.indices) {
-                        hiddenNeuron.weights[i] += hiddenNeuron.ΔW[i]
+                k = 0
+                while (k < hiddenLayerSize) {
+                    val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[k] as AbstractMLPNeuron
+                    for (j in hiddenNeuron.weights.indices) {
+                        hiddenNeuron.weights[j] += hiddenNeuron.ΔW[j]
                     }
+                    k++
                 }
 
                 // Уточнение центра и радиуса нечеткого слоя

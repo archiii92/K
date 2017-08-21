@@ -2,6 +2,7 @@ package k.utils
 
 import java.io.FileNotFoundException
 import java.util.*
+import kotlin.collections.ArrayList
 
 var dif = 0.0
 var min = 0.0
@@ -38,7 +39,7 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     dif = max - min
 
     val trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100
-
+    val data = ArrayList<DataVector>()
     var i = 0
     while (i < dataValues.count() - inputLayerSize - outputLayerSize) {
         val dataVector = DataVector(inputLayerSize, outputLayerSize)
@@ -54,12 +55,18 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
             dataVector.Forecast[j] = dataValues[i + inputLayerSize + j]
             j++
         }
-        if (i < trainDataCount) {
-            trainData.add(dataVector)
-        } else {
-            testData.add(dataVector)
-        }
+        
+        data.add(dataVector)
         i++
+    }
+
+    Collections.shuffle(data)
+    for (j in data.indices) {
+        if (j < trainDataCount) {
+            trainData.add(data[j])
+        } else {
+            testData.add(data[j])
+        }
     }
 }
 

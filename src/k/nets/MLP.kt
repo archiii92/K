@@ -22,9 +22,9 @@ open class MLP(
     override val trainData: ArrayList<DataVector> = ArrayList()
     override val testData: ArrayList<DataVector> = ArrayList()
 
-    val inputLayer: ArrayList<Neuron> = ArrayList(inputLayerSize)
-    val hiddenLayer: ArrayList<AbstractMLPNeuron> = ArrayList(hiddenLayerSize)
-    val outputLayer: ArrayList<AbstractMLPNeuron> = ArrayList(outputLayerSize)
+    val inputLayer: ArrayList<Neuron> = ArrayList(inputLayerSize + 1)
+    val hiddenLayer: ArrayList<Neuron> = ArrayList(hiddenLayerSize + 1)
+    val outputLayer: ArrayList<Neuron> = ArrayList(outputLayerSize)
 
     final override fun prepareData() {
         k.utils.readData(trainData, testData, trainTestDivide, dataFileName, inputLayerSize, outputLayerSize)
@@ -37,6 +37,7 @@ open class MLP(
             inputLayer.add(inputNeuron)
             i++
         }
+        inputLayer.add(InputNeuron(1.0))
 
         i = 0
         while (i < hiddenLayerSize) {
@@ -44,6 +45,7 @@ open class MLP(
             hiddenLayer.add(hyperbolicTangentNeuron)
             i++
         }
+        hiddenLayer.add(InputNeuron(1.0))
 
         i = 0
         while (i < outputLayerSize) {
@@ -62,7 +64,7 @@ open class MLP(
         var trainError = 0.0
         var testError = 0.0
 
-        for (dataVector: DataVector in trainData) {
+        for (dataVector in trainData) {
             calculateOutput(dataVector)
             val result = getOutputValue()
             for (i in dataVector.Forecast.indices) {
@@ -72,7 +74,7 @@ open class MLP(
         }
         trainError = Math.sqrt(trainError / (trainData.size))
 
-        for (dataVector: DataVector in testData) {
+        for (dataVector in testData) {
             calculateOutput(dataVector)
             val result = getOutputValue()
             for (i in dataVector.Forecast.indices) {
@@ -86,9 +88,11 @@ open class MLP(
     }
 
     override fun setInputValue(dataVector: DataVector) {
-        for (i in inputLayer.indices) {
+        var i = 0
+        while (i < inputLayerSize) {
             val normalizedValue = normalized(dataVector.Window[i])
             inputLayer[i].value = normalizedValue
+            i++
         }
     }
 
@@ -99,11 +103,11 @@ open class MLP(
     }
 
     final override fun calculateHiddenLayer() {
-        hiddenLayer.forEach { neuron: Neuron -> neuron.calculateState() }
+        hiddenLayer.forEach { neuron -> neuron.calculateState() }
     }
 
     final override fun calculateOutputLayer() {
-        outputLayer.forEach { neuron: Neuron -> neuron.calculateState() }
+        outputLayer.forEach { neuron -> neuron.calculateState() }
     }
 
     final override fun getOutputValue(): DoubleArray {
@@ -116,18 +120,18 @@ open class MLP(
 
     private fun backPropagation() {
         var iteration = 0
-        var prevError: Double = Double.MAX_VALUE
+        var prevError = Double.MAX_VALUE
         var errorDiff: Double
         var curError: Double
 
         do {
-            for (dataVector: DataVector in trainData) {
+            for (dataVector in trainData) {
 
                 calculateOutput(dataVector)
                 val result: DoubleArray = getOutputValue()
                 // Обратный проход сигнала через выходной слой
                 for (i in outputLayer.indices) {
-                    val outputNeuron: AbstractMLPNeuron = outputLayer[i]
+                    val outputNeuron: AbstractMLPNeuron = outputLayer[i] as AbstractMLPNeuron
                     // δ = (y - d) * (df(u2) / du2)
                     outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
 
@@ -138,13 +142,15 @@ open class MLP(
                 }
 
                 // Обратный проход сигнала через скрытый слой
-                for (i in hiddenLayer.indices) {
-                    val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[i]
+                var i = 0
+                while (i < hiddenLayerSize) {
+                    val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[i] as AbstractMLPNeuron
 
                     // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
                     hiddenNeuron.δ = 0.0
                     for (s in outputLayer.indices) {
-                        hiddenNeuron.δ += outputLayer[s].δ * outputLayer[s].weights[i]
+                        val outputNeuron: AbstractMLPNeuron = outputLayer[s] as AbstractMLPNeuron
+                        hiddenNeuron.δ += outputNeuron.δ * outputNeuron.weights[i]
                     }
                     hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
 
@@ -152,25 +158,32 @@ open class MLP(
                     for (j in hiddenNeuron.prevLayer.indices) {
                         hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.prevLayer[j].value
                     }
+                    i++
+                }
+
+                // Уточнение весов вsходного слоя
+                i = 0
+                while (i < outputLayerSize) {
+                    val outputNeuron: AbstractMLPNeuron = outputLayer[i] as AbstractMLPNeuron
+                    for (j in outputNeuron.weights.indices) {
+                        outputNeuron.weights[j] += outputNeuron.ΔW[j]
+                    }
+                    i++
                 }
 
                 // Уточнение весов скрытого слоя
-                for (hiddenNeuron: AbstractMLPNeuron in hiddenLayer) {
-                    for (i in hiddenNeuron.weights.indices) {
-                        hiddenNeuron.weights[i] += hiddenNeuron.ΔW[i]
+                i = 0
+                while (i < hiddenLayerSize) {
+                    val hiddenNeuron: AbstractMLPNeuron = hiddenLayer[i] as AbstractMLPNeuron
+                    for (j in hiddenNeuron.weights.indices) {
+                        hiddenNeuron.weights[j] += hiddenNeuron.ΔW[j]
                     }
-                }
-
-                // Уточнение весов входного слоя
-                for (outputNeuron: AbstractMLPNeuron in outputLayer) {
-                    for (i in outputNeuron.weights.indices) {
-                        outputNeuron.weights[i] += outputNeuron.ΔW[i]
-                    }
+                    i++
                 }
             }
             curError = 0.0
 
-            for (dataVector: DataVector in trainData) {
+            for (dataVector in trainData) {
                 calculateOutput(dataVector)
                 val result = getOutputValue()
                 for (i in dataVector.Forecast.indices) {
