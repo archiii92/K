@@ -55,7 +55,7 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
             dataVector.Forecast[j] = dataValues[i + inputLayerSize + j]
             j++
         }
-        
+
         data.add(dataVector)
         i++
     }
