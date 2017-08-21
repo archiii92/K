@@ -70,11 +70,11 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     }
 }
 
-fun normalized(value: Double): Double {
+fun normalize(value: Double): Double {
     return (value - min) / dif
 }
 
-fun denormalized(value: Double): Double {
+fun denormalize(value: Double): Double {
     return value * dif + min
 }
 

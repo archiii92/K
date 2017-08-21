@@ -10,8 +10,8 @@ fun main(args: Array<String>) {
             "temperature.csv", // gold.txt temperature.csv
             80,
             3,
-            6,
-            6,
+            3,
+            4,
             1,
             0.0000001,
             300,

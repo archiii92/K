@@ -18,10 +18,13 @@ class GaussianNeuron(val prevLayer: ArrayList<Neuron>, override var value: Doubl
             x[i] = prevLayer[i].value
         }
 
+        value = activationFunction(x)
+    }
+
+    fun activationFunction(x: DoubleArray): Double {
         val dist = getEuclideanDistance(x, center)
 
-        value = Math.exp(-Math.pow(dist, 2.0) / (2 * Math.pow(radius, 2.0)))
-
         //value = 1 / (1 + Math.exp(-1 * Math.pow(dist, 2.0) / Math.pow(radius, 2.0)))
+        return Math.exp(-Math.pow(dist, 2.0) / (2 * Math.pow(radius, 2.0)))
     }
 }

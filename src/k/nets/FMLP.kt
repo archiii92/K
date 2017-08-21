@@ -5,6 +5,7 @@ import k.utils.DataVector
 import k.utils.format
 import k.utils.getEuclideanDistance
 import java.util.*
+import kotlin.collections.ArrayList
 
 class FMLP(
         dataFileName: String,
@@ -73,6 +74,11 @@ class FMLP(
         for (i in inputLayer.indices) {
             inputLayer[i].value = dataVector.Window[i]
         }
+    }
+
+    override fun getOutputValue(): DoubleArray {
+        val strictResult = defuzzyficate(outputLayer)
+        return strictResult
     }
 
     private fun calculateFuzzyLayer() {
@@ -345,4 +351,17 @@ class FMLP(
             System.out.println("Пред: ${prevError.format(8)} Тек: ${curError.format(8)} Раз: ${errorDiff.format(8)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
+}
+
+private fun defuzzyficate(outputLayer: ArrayList<Neuron>): DoubleArray {
+    val strictResult = DoubleArray(outputLayer.size)
+    var nominator = 0.0
+    var denominator = 0.0
+    for (i in outputLayer.indices) {
+        val outputNeuron = outputLayer[i]
+        nominator += outputNeuron.value * outputNeuron.ac
+        denominator += outputNeuron.value
+        strictResult[i] = nominator / denominator
+    }
+    return strictResult
 }

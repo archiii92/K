@@ -5,9 +5,9 @@ import k.neurons.HyperbolicTangentNeuron
 import k.neurons.InputNeuron
 import k.neurons.Neuron
 import k.utils.DataVector
-import k.utils.denormalized
+import k.utils.denormalize
 import k.utils.format
-import k.utils.normalized
+import k.utils.normalize
 
 open class MLP(
         override val dataFileName: String,
@@ -72,7 +72,7 @@ open class MLP(
                 System.out.println("Знач: ${dataVector.Forecast[i].format(3)} Прог: ${result[i].format(3)}")
             }
         }
-        trainError = Math.sqrt(trainError / (trainData.size))
+        trainError = Math.sqrt(trainError / trainData.size)
 
         for (dataVector in testData) {
             calculateOutput(dataVector)
@@ -82,7 +82,7 @@ open class MLP(
                 System.out.println("Знач: ${dataVector.Forecast[i].format(3)} Прог: ${result[i].format(3)}")
             }
         }
-        testError = Math.sqrt(testError / (testData.size))
+        testError = Math.sqrt(testError / testData.size)
 
         System.out.println("Трен: ${trainError.format(6)} Тест: ${testError.format(6)}")
     }
@@ -90,7 +90,7 @@ open class MLP(
     override fun setInputValue(dataVector: DataVector) {
         var i = 0
         while (i < inputLayerSize) {
-            val normalizedValue = normalized(dataVector.Window[i])
+            val normalizedValue = normalize(dataVector.Window[i])
             inputLayer[i].value = normalizedValue
             i++
         }
@@ -110,10 +110,10 @@ open class MLP(
         outputLayer.forEach { neuron -> neuron.calculateState() }
     }
 
-    final override fun getOutputValue(): DoubleArray {
+    override fun getOutputValue(): DoubleArray {
         val result = DoubleArray(outputLayer.size)
         for (i in outputLayer.indices) {
-            result[i] = denormalized(outputLayer[i].value)
+            result[i] = denormalize(outputLayer[i].value)
         }
         return result
     }
