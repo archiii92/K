@@ -31,23 +31,23 @@ open class MLP(
     }
 
     override fun buildNetwork() {
-        var i: Int = 0
+        var i = 0
         while (i < inputLayerSize) {
-            val inputNeuron: Neuron = InputNeuron()
+            val inputNeuron = InputNeuron()
             inputLayer.add(inputNeuron)
             i++
         }
 
         i = 0
         while (i < hiddenLayerSize) {
-            val hyperbolicTangentNeuron: AbstractMLPNeuron = HyperbolicTangentNeuron(inputLayer)
+            val hyperbolicTangentNeuron = HyperbolicTangentNeuron(inputLayer)
             hiddenLayer.add(hyperbolicTangentNeuron)
             i++
         }
 
         i = 0
         while (i < outputLayerSize) {
-            val outputNeuron: AbstractMLPNeuron = HyperbolicTangentNeuron(hiddenLayer)
+            val outputNeuron = HyperbolicTangentNeuron(hiddenLayer)
             outputLayer.add(outputNeuron)
             i++
         }
@@ -59,8 +59,8 @@ open class MLP(
     }
 
     final override fun test() {
-        var trainError: Double = 0.0
-        var testError: Double = 0.0
+        var trainError = 0.0
+        var testError = 0.0
 
         for (dataVector: DataVector in trainData) {
             calculateOutput(dataVector)
@@ -106,12 +106,16 @@ open class MLP(
         outputLayer.forEach { neuron: Neuron -> neuron.calculateState() }
     }
 
-    final override fun getOutputValue(): ArrayList<Double> {
-        return ArrayList(outputLayer.map { x -> denormalized(x.value) })
+    final override fun getOutputValue(): DoubleArray {
+        val result = DoubleArray(outputLayer.size)
+        for (i in outputLayer.indices) {
+            result[i] = denormalized(outputLayer[i].value)
+        }
+        return result
     }
 
     private fun backPropagation() {
-        var iteration: Int = 0
+        var iteration = 0
         var prevError: Double = Double.MAX_VALUE
         var errorDiff: Double
         var curError: Double
@@ -120,7 +124,7 @@ open class MLP(
             for (dataVector: DataVector in trainData) {
 
                 calculateOutput(dataVector)
-                val result: ArrayList<Double> = getOutputValue()
+                val result: DoubleArray = getOutputValue()
                 // Обратный проход сигнала через выходной слой
                 for (i in outputLayer.indices) {
                     val outputNeuron: AbstractMLPNeuron = outputLayer[i]

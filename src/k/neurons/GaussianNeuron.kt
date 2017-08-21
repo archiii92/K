@@ -7,21 +7,12 @@ class GaussianNeuron(val prevLayer: ArrayList<Neuron>, override var value: Doubl
 
     var center: DoubleArray = DoubleArray(prevLayer.size)
     var radius: Double = 1.0
-    val weights: DoubleArray = DoubleArray(prevLayer.size)
 
-    var δ: Double = 0.0
-    var ΔW: DoubleArray = DoubleArray(prevLayer.size)
-
-    init {
-        val r: Random = Random()
-        for (i in prevLayer.indices) {
-            weights[i] = r.nextDouble()
-        }
-    }
-
+    var dEdc: DoubleArray = DoubleArray(prevLayer.size)
+    var dEdr: Double = 0.0
 
     override fun calculateState() {
-        val x: DoubleArray = DoubleArray(prevLayer.size)
+        val x = DoubleArray(prevLayer.size)
 
         for (i in prevLayer.indices) {
             x[i] = prevLayer[i].value

@@ -3,11 +3,11 @@ package k.utils
 import java.io.FileNotFoundException
 import java.util.*
 
-var dif: Double = 0.0
-var min: Double = 0.0
+var dif = 0.0
+var min = 0.0
 
 fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, trainTestDivide: Int, dataFileName: String, inputLayerSize: Int, outputLayerSize: Int) {
-    val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName) as Throwable
+    val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName)
 
     val scanner = Scanner(fileIn)
     val readedLines = ArrayList<String>()
@@ -16,8 +16,8 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     }
     scanner.close()
 
-    val dataValues = ArrayList<Double>()
-    var max: Double = Double.MIN_VALUE
+    val dataValues = DoubleArray(readedLines.size)
+    var max = Double.MIN_VALUE
     min = Double.MAX_VALUE
 
     for (i in readedLines.indices) {
@@ -32,7 +32,7 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         else if (dataValue < min)
             min = dataValue
 
-        dataValues.add(dataValue)
+        dataValues[i] = dataValue
     }
 
     dif = max - min
@@ -71,12 +71,8 @@ fun denormalized(value: Double): Double {
     return value * dif + min
 }
 
-fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
+fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
 
 fun getEuclideanDistance(v1: DoubleArray, v2: DoubleArray): Double {
-    var sum: Double = 0.0
-    for (i in v2.indices) {
-        sum += Math.pow(v1[i] - v2[i], 2.0)
-    }
-    return Math.sqrt(sum)
+    return Math.sqrt(v2.indices.sumByDouble { Math.pow(v1[it] - v2[it], 2.0) })
 }

@@ -14,7 +14,7 @@ abstract class AbstractMLPNeuron(prevLayer: ArrayList<out Neuron>) : Neuron {
     var ΔW: DoubleArray = DoubleArray(prevLayer.size)
 
     init {
-        val r: Random = Random()
+        val r = Random()
         for (i in prevLayer.indices) {
             weights[i] = r.nextDouble()
         }

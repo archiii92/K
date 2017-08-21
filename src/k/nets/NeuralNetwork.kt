@@ -17,5 +17,5 @@ interface NeuralNetwork {
     fun calculateOutput(dataVector: DataVector)
     fun calculateHiddenLayer()
     fun calculateOutputLayer()
-    fun getOutputValue(): ArrayList<Double>
+    fun getOutputValue(): DoubleArray
 }
