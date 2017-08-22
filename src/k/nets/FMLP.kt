@@ -43,7 +43,7 @@ class FMLP(
 
         i = 0
         while (i < hiddenLayerSize) {
-            val hyperbolicTangentNeuron = HyperbolicTangentNeuron(fuzzyLayer)
+            val hyperbolicTangentNeuron = LogisticNeuron(fuzzyLayer)
             hiddenLayer.add(hyperbolicTangentNeuron)
             i++
         }
@@ -51,7 +51,7 @@ class FMLP(
 
         i = 0
         while (i < outputLayerSize) {
-            val outputNeuron = HyperbolicTangentNeuron(hiddenLayer)
+            val outputNeuron = LogisticNeuron(hiddenLayer)
             outputLayer.add(outputNeuron)
             i++
         }
@@ -74,11 +74,6 @@ class FMLP(
         for (i in inputLayer.indices) {
             inputLayer[i].value = dataVector.Window[i]
         }
-    }
-
-    override fun getOutputValue(): DoubleArray {
-        val strictResult = defuzzyficate(outputLayer)
-        return strictResult
     }
 
     private fun calculateFuzzyLayer() {
@@ -351,17 +346,4 @@ class FMLP(
             System.out.println("Пред: ${prevError.format(8)} Тек: ${curError.format(8)} Раз: ${errorDiff.format(8)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
-}
-
-private fun defuzzyficate(outputLayer: ArrayList<Neuron>): DoubleArray {
-    val strictResult = DoubleArray(outputLayer.size)
-    var nominator = 0.0
-    var denominator = 0.0
-    for (i in outputLayer.indices) {
-        val outputNeuron = outputLayer[i]
-        nominator += outputNeuron.value * outputNeuron.ac
-        denominator += outputNeuron.value
-        strictResult[i] = nominator / denominator
-    }
-    return strictResult
 }

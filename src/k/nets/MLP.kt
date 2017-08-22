@@ -1,9 +1,6 @@
 package k.nets
 
-import k.neurons.AbstractMLPNeuron
-import k.neurons.HyperbolicTangentNeuron
-import k.neurons.InputNeuron
-import k.neurons.Neuron
+import k.neurons.*
 import k.utils.DataVector
 import k.utils.denormalize
 import k.utils.format
@@ -41,7 +38,7 @@ open class MLP(
 
         i = 0
         while (i < hiddenLayerSize) {
-            val hyperbolicTangentNeuron = HyperbolicTangentNeuron(inputLayer)
+            val hyperbolicTangentNeuron = LogisticNeuron(inputLayer)
             hiddenLayer.add(hyperbolicTangentNeuron)
             i++
         }
@@ -49,7 +46,7 @@ open class MLP(
 
         i = 0
         while (i < outputLayerSize) {
-            val outputNeuron = HyperbolicTangentNeuron(hiddenLayer)
+            val outputNeuron = LogisticNeuron(hiddenLayer)
             outputLayer.add(outputNeuron)
             i++
         }
