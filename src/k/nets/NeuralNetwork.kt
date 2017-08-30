@@ -13,9 +13,5 @@ interface NeuralNetwork {
     fun buildNetwork()
     fun learn()
     fun test()
-    fun setInputValue(dataVector: DataVector)
-    fun calculateOutput(dataVector: DataVector)
-    fun calculateHiddenLayer()
-    fun calculateOutputLayer()
-    fun getOutputValue(): DoubleArray
+    fun calculate(dataVector: DataVector): DoubleArray
 }

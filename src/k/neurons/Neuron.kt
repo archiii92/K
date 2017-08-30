@@ -1,6 +1,6 @@
 package k.neurons
 
 interface Neuron {
-    var value: Double
+    var outputValue: Double
     fun calculateState()
 }

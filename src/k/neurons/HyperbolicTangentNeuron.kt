@@ -1,7 +1,7 @@
 package k.neurons
 
 /* Нейрон с функцией активации в виде гиперболического тангенса */
-class HyperbolicTangentNeuron(prevLayer: ArrayList<out Neuron>) : AbstractMLPNeuron(prevLayer) {
+class HyperbolicTangentNeuron(inputVectorSize: Int) : AbstractMLPNeuron(inputVectorSize) {
 
     var k: Double = 1.0 // Коэффициент гиперболического тангенса
 
