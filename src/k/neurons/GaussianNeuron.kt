@@ -1,31 +1,31 @@
-//package k.neurons
-//
-//import k.utils.getEuclideanDistance
-//import java.util.*
-//
-//class GaussianNeuron(val prevLayer: ArrayList<Neuron>, override var value: Double = 0.0) : Neuron {
-//
-//    var center: DoubleArray = DoubleArray(prevLayer.size)
-//    var radius: Double = 1.0
-//
-//    var dEdc: DoubleArray = DoubleArray(prevLayer.size)
-//    var dEdr: Double = 0.0
-//
-//    override fun calculateState() {
-//        val x = DoubleArray(prevLayer.size)
+package k.neurons
+
+import k.utils.getEuclideanDistance
+
+class GaussianNeuron(val inputVectorSize: Int) : Neuron {
+
+    var inputVector: DoubleArray = DoubleArray(inputVectorSize)
+    override var outputValue: Double = 0.0
+
+    var center: DoubleArray = DoubleArray(inputVectorSize)
+    var radius: Double = 1.0
+
+    var dEdc: DoubleArray = DoubleArray(inputVectorSize)
+    var dEdr: Double = 0.0
+
+    override fun calculateState() {
+//        val x = DoubleArray(inputVectorSize)
 //
 //        for (i in prevLayer.indices) {
-//            x[i] = prevLayer[i].value
+//            x[i] = prevLayer[i].outputValue
 //        }
-//
-//        val dist = getEuclideanDistance(x, center)
-//
-//        value = GaussFunction(dist)
-//    }
-//
-//    fun GaussFunction(dist: Double): Double {
-//
-//        //return 1 / (1 + Math.exp(-Math.pow(dist, 2.0) / Math.pow(radius, 2.0)))
-//        return Math.exp(-Math.pow(dist, 2.0) / (2 * Math.pow(radius, 2.0)))
-//    }
-//}
+
+        outputValue = GaussFunction(getEuclideanDistance(inputVector, center))
+    }
+
+    fun GaussFunction(dist: Double): Double {
+
+        //return 1 / (1 + Math.exp(-Math.pow(dist, 2.0) / Math.pow(radius, 2.0)))
+        return Math.exp(-Math.pow(dist, 2.0) / (2 * Math.pow(radius, 2.0)))
+    }
+}

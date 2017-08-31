@@ -22,7 +22,7 @@ open class MLP(
     override val testData: ArrayList<DataVector> = ArrayList()
 
     open val inputLayer: Layer = InputLayer(inputLayerSize)
-    val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, inputLayerSize)
+    open val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, inputLayerSize)
     val outputLayer: Layer = OutputLayer(outputLayerSize, hiddenLayerSize)
 
     final override fun prepareData() {

@@ -4,7 +4,7 @@ import k.neurons.InputNeuron
 import k.neurons.Neuron
 import k.neurons.SingleNeuron
 
-class InputLayer(override val layerSize: Int) : Layer {
+class InputLayer(layerSize: Int) : AbstaractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize + 1)
 
     override fun build() {
@@ -23,15 +23,8 @@ class InputLayer(override val layerSize: Int) : Layer {
                 neurons[i].outputValue = value[i]
                 i++
             }
+            field = value
         }
-
-    override fun calculate() {
-        var i = 0
-        while (i < layerSize) {
-            neurons[i].calculateState()
-            i++
-        }
-    }
 
     override var outputVector: DoubleArray = DoubleArray(layerSize + 1)
         get() {

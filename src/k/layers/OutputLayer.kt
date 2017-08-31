@@ -5,7 +5,7 @@ import k.neurons.LogisticNeuron
 import k.neurons.Neuron
 import k.utils.denormalize
 
-class OutputLayer(override val layerSize: Int, val inputVectorSize: Int) : Layer {
+class OutputLayer(layerSize: Int, val inputVectorSize: Int) : AbstaractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize)
 
     override fun build() {
@@ -24,15 +24,8 @@ class OutputLayer(override val layerSize: Int, val inputVectorSize: Int) : Layer
                 hiddenNeuron.inputVector = value
                 i++
             }
+            field = value
         }
-
-    override fun calculate() {
-        var i = 0
-        while (i < layerSize) {
-            neurons[i].calculateState()
-            i++
-        }
-    }
 
     override var outputVector: DoubleArray = DoubleArray(layerSize)
         get() {

@@ -1,28 +1,27 @@
 package k.layers
 
-import k.neurons.AbstractMLPNeuron
-import k.neurons.LogisticNeuron
+import k.neurons.GaussianNeuron
 import k.neurons.Neuron
 import k.neurons.SingleNeuron
 
-class HiddenLayer(layerSize: Int, val inputVectorSize: Int) : AbstaractLayer(layerSize) {
+class FuzzyLayer(layerSize: Int, val inputVectorSize: Int) : AbstaractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize + 1)
 
     override fun build() {
         var i = 0
         while (i < layerSize) {
-            neurons.add(LogisticNeuron(inputVectorSize + 1))
+            neurons.add(GaussianNeuron(inputVectorSize))
             i++
         }
         neurons.add(SingleNeuron())
     }
 
-    override var inputVector: DoubleArray = DoubleArray(inputVectorSize + 1)
+    override var inputVector: DoubleArray = DoubleArray(inputVectorSize)
         set(value) {
             var i = 0
             while (i < layerSize) {
-                val hiddenNeuron = neurons[i] as AbstractMLPNeuron
-                hiddenNeuron.inputVector = value
+                val gaussNeuron = neurons[i] as GaussianNeuron
+                gaussNeuron.inputVector = value
                 i++
             }
             field = value
