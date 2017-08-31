@@ -4,6 +4,7 @@ import k.layers.HiddenLayer
 import k.layers.InputLayer
 import k.layers.Layer
 import k.layers.OutputLayer
+import k.neuronFactories.AbstractNeuronFactory
 import k.neurons.AbstractMLPNeuron
 import k.utils.DataVector
 import k.utils.format
@@ -16,14 +17,15 @@ open class MLP(
         val outputLayerSize: Int,
         val η: Double,
         val errorThresholdBackPropagation: Double,
-        val iterationThresholdBackPropagation: Int
+        val iterationThresholdBackPropagation: Int,
+        val neuronFactory: AbstractNeuronFactory
 ) : NeuralNetwork {
     override val trainData: ArrayList<DataVector> = ArrayList()
     override val testData: ArrayList<DataVector> = ArrayList()
 
     open val inputLayer: Layer = InputLayer(inputLayerSize)
-    open val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, inputLayerSize)
-    val outputLayer: Layer = OutputLayer(outputLayerSize, hiddenLayerSize)
+    open val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, inputLayerSize, neuronFactory)
+    val outputLayer: Layer = OutputLayer(outputLayerSize, hiddenLayerSize, neuronFactory)
 
     final override fun prepareData() {
         k.utils.readData(trainData, testData, trainTestDivide, dataFileName, inputLayerSize, outputLayerSize)

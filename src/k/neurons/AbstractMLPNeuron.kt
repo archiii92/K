@@ -2,7 +2,7 @@ package k.neurons
 
 import java.util.*
 
-abstract class AbstractMLPNeuron(val inputVectorSize: Int) : Neuron {
+abstract class AbstractMLPNeuron(inputVectorSize: Int) : Neuron {
     var inputVector: DoubleArray = DoubleArray(inputVectorSize)
     final override var outputValue: Double = 0.0
 

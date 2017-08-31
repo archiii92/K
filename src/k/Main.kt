@@ -2,8 +2,12 @@ package k
 
 import k.nets.FMLP
 import k.nets.NeuralNetwork
+import k.neuronFactories.AbstractNeuronFactory
+import k.neuronFactories.LogisticNeuronFactory
 
 fun main(args: Array<String>) {
+
+    val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
 
     val neuralNetwork: NeuralNetwork = FMLP(
             "gold.txt", // gold.txt temperature.csv
@@ -17,7 +21,8 @@ fun main(args: Array<String>) {
             0.001,
             0.00005,
             5000,
-            3
+            3,
+            neuronFactory
     )
 
 //    val neuralNetwork: NeuralNetwork = MLP(
@@ -33,7 +38,8 @@ fun main(args: Array<String>) {
 //            /* Настройка обучения */
 //            0.001, // Коэффициент обучения
 //            0.000001, // Желаемая минимальная разница погрешностей
-//            10000 // Максимальное число итераций обучения
+//            10000, // Максимальное число итераций обучения
+//            neuronFactory
 //    )
 
     neuralNetwork.prepareData()

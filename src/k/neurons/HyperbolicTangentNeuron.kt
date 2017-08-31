@@ -14,7 +14,6 @@ class HyperbolicTangentNeuron(inputVectorSize: Int) : AbstractMLPNeuron(inputVec
 
     /* Производная гиперболического тангенса */
     override fun activationFunctionDerivative(x: Double): Double {
-        val f = activationFunction(x)
-        return 1 - Math.pow(f, 2.0)
+        return 1 - Math.pow(activationFunction(x), 2.0)
     }
 }

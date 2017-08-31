@@ -3,6 +3,7 @@ package k.nets
 import k.layers.FuzzyLayer
 import k.layers.HiddenLayer
 import k.layers.Layer
+import k.neuronFactories.AbstractNeuronFactory
 import k.neurons.AbstractMLPNeuron
 import k.neurons.GaussianNeuron
 import k.utils.DataVector
@@ -22,11 +23,12 @@ class FMLP(
         η: Double,
         errorThresholdBackPropagation: Double,
         iterationThresholdBackPropagation: Int,
-        val neighborsCount: Int
-) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation) {
+        val neighborsCount: Int,
+        neuronFactory: AbstractNeuronFactory
+) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation, neuronFactory) {
 
     override val inputLayer: Layer = FuzzyLayer(fuzzyLayerSize, inputLayerSize)
-    override val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, fuzzyLayerSize)
+    override val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, fuzzyLayerSize, neuronFactory)
 
     override fun learn() {
         fuzzyCMeans()
@@ -44,26 +46,23 @@ class FMLP(
 
     // Случайная инициализация коэффициентов матрицы u, выбирая их значения из интервала [0,1] таким образом, чтобы соблюдать условие ∑u = 1
     private fun fillUMatrix(u: Array<DoubleArray>) {
-        val r = Random()
 
-        var sum = 0.0
+        val r = Random()
         val vector = DoubleArray(fuzzyLayerSize)
         for (t in trainData.indices) {
 
             var i = 0
+            var sum = 0.0
             while (i < fuzzyLayerSize) {
                 val value: Double = r.nextDouble()
                 vector[i] = value
                 sum += value
-
                 i++
             }
 
             for (j in vector.indices) {
                 u[j][t] = vector[j] / sum // Нормируем значения коэффициентов, таким образом, чтобы они были от 0 до 1 и в сумме давали 1
             }
-
-            sum = 0.0
         }
     }
 
@@ -88,7 +87,6 @@ class FMLP(
                 val center: DoubleArray = fuzzyNeuron.center
 
                 var denominator = 0.0
-
                 for (t in trainData.indices) {
                     val uit = Math.pow(u[i][t], m)
                     for (j in trainData[t].Window.indices) {
