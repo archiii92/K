@@ -18,7 +18,7 @@ open class MLP(
         val η: Double,
         val errorThresholdBackPropagation: Double,
         val iterationThresholdBackPropagation: Int,
-        val neuronFactory: AbstractNeuronFactory
+        neuronFactory: AbstractNeuronFactory
 ) : NeuralNetwork {
     override val trainData: ArrayList<DataVector> = ArrayList()
     override val testData: ArrayList<DataVector> = ArrayList()

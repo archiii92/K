@@ -5,7 +5,7 @@ import k.neurons.AbstractMLPNeuron
 import k.neurons.Neuron
 import k.utils.denormalize
 
-class OutputLayer(layerSize: Int, val inputVectorSize: Int, val neuronFactory: AbstractNeuronFactory) : AbstaractLayer(layerSize) {
+class OutputLayer(layerSize: Int, val inputVectorSize: Int, val neuronFactory: AbstractNeuronFactory) : AbstractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize)
 
     override fun build() {

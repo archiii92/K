@@ -4,10 +4,13 @@ import k.nets.FMLP
 import k.nets.NeuralNetwork
 import k.neuronFactories.AbstractNeuronFactory
 import k.neuronFactories.LogisticNeuronFactory
+import k.neuronWeightsInitializerCommands.NWICommand
+import k.neuronWeightsInitializerCommands.RandomNWI
 
 fun main(args: Array<String>) {
 
-    val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
+    val neuronWeightInitializer: NWICommand = RandomNWI()
+    val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory(neuronWeightInitializer)
 
     val neuralNetwork: NeuralNetwork = FMLP(
             "gold.txt", // gold.txt temperature.csv

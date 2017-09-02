@@ -4,7 +4,7 @@ import k.neurons.GaussianNeuron
 import k.neurons.Neuron
 import k.neurons.SingleNeuron
 
-class FuzzyLayer(layerSize: Int, val inputVectorSize: Int) : AbstaractLayer(layerSize) {
+class FuzzyLayer(layerSize: Int, val inputVectorSize: Int) : AbstractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize + 1)
 
     override fun build() {

@@ -4,7 +4,7 @@ import k.neurons.InputNeuron
 import k.neurons.Neuron
 import k.neurons.SingleNeuron
 
-class InputLayer(layerSize: Int) : AbstaractLayer(layerSize) {
+class InputLayer(layerSize: Int) : AbstractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize + 1)
 
     override fun build() {

@@ -5,7 +5,7 @@ import k.neurons.AbstractMLPNeuron
 import k.neurons.Neuron
 import k.neurons.SingleNeuron
 
-class HiddenLayer(layerSize: Int, val inputVectorSize: Int, val neuronFactory: AbstractNeuronFactory) : AbstaractLayer(layerSize) {
+class HiddenLayer(layerSize: Int, val inputVectorSize: Int, val neuronFactory: AbstractNeuronFactory) : AbstractLayer(layerSize) {
     override val neurons: ArrayList<Neuron> = ArrayList(layerSize + 1)
 
     override fun build() {

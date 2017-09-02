@@ -1,6 +1,6 @@
 package k.layers
 
-abstract class AbstaractLayer(val layerSize: Int) : Layer {
+abstract class AbstractLayer(val layerSize: Int) : Layer {
     final override fun calculate() {
         var i = 0
         while (i < layerSize) {
