@@ -83,3 +83,20 @@ fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
 fun getEuclideanDistance(v1: DoubleArray, v2: DoubleArray): Double {
     return Math.sqrt(v2.indices.sumByDouble { Math.pow(v1[it] - v2[it], 2.0) })
 }
+
+fun DoubleArray.toFormatString(digits: Int): String {
+    val iMax = this.size - 1
+    if (iMax == -1)
+        return "[]"
+
+    val b = StringBuilder()
+    b.append('[')
+    var i = 0
+    while (true) {
+        b.append(this[i].format(digits))
+        if (i == iMax)
+            return b.append(']').toString()
+        b.append(", ")
+        i++
+    }
+}

@@ -1,5 +1,6 @@
 package k.nets
 
+import k.neuronWeightsOptimizers.NWOCommand
 import k.utils.DataVector
 
 interface NeuralNetwork {
@@ -14,4 +15,7 @@ interface NeuralNetwork {
     fun learn()
     fun test()
     fun calculate(dataVector: DataVector): DoubleArray
+
+    fun optimizeMLPNeuronWeigths()
+    fun calculateError(data: ArrayList<DataVector>): Double
 }

@@ -4,13 +4,13 @@ import k.nets.FMLP
 import k.nets.NeuralNetwork
 import k.neuronFactories.AbstractNeuronFactory
 import k.neuronFactories.LogisticNeuronFactory
-import k.neuronWeightsInitializerCommands.NWICommand
-import k.neuronWeightsInitializerCommands.RandomNWI
+import k.neuronWeightsOptimizers.NWOCommand
+import k.neuronWeightsOptimizers.SimulatedAnnealingNWO
 
 fun main(args: Array<String>) {
 
-    val neuronWeightInitializer: NWICommand = RandomNWI()
-    val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory(neuronWeightInitializer)
+    //val neuronWeightsOptimizer: NWOCommand = SimulatedAnnealingNWO(10)
+    val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
 
     val neuralNetwork: NeuralNetwork = FMLP(
             "gold.txt", // gold.txt temperature.csv
@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
             0.0000001,
             300,
             0.001,
-            0.00005,
+            0.00001,
             5000,
             3,
             neuronFactory
@@ -47,9 +47,9 @@ fun main(args: Array<String>) {
 
     neuralNetwork.prepareData()
     neuralNetwork.buildNetwork()
+    neuralNetwork.optimizeMLPNeuronWeigths()
     neuralNetwork.learn()
     neuralNetwork.test()
 }
 
 // TODO: Перейти с Double на Float?
-// TODO: Написать фабрику для создания нейроных сетей с заданными параметрами (в том числи и меняя тип нейронов в скрытом слое, а потом и алгоритмы инициализации)

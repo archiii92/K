@@ -1,9 +1,7 @@
 package k.neurons
 
-import k.neuronWeightsInitializerCommands.NWICommand
-
 /* Нейрон с логистической функцией активации */
-class LogisticNeuron(inputVectorSize: Int, NWICommand: NWICommand) : AbstractMLPNeuron(inputVectorSize, NWICommand) {
+class LogisticNeuron(inputVectorSize: Int) : AbstractMLPNeuron(inputVectorSize) {
 
     var k: Double = 1.0 // Коэффициент логистической функции
 

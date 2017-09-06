@@ -1,8 +1,8 @@
 package k.neurons
 
-import k.neuronWeightsInitializerCommands.NWICommand
+import java.util.*
 
-abstract class AbstractMLPNeuron(inputVectorSize: Int, NWICommand: NWICommand) : Neuron {
+abstract class AbstractMLPNeuron(inputVectorSize: Int) : Neuron {
     var inputVector: DoubleArray = DoubleArray(inputVectorSize)
     final override var outputValue: Double = 0.0
 
@@ -13,7 +13,10 @@ abstract class AbstractMLPNeuron(inputVectorSize: Int, NWICommand: NWICommand) :
     var ΔW: DoubleArray = DoubleArray(inputVectorSize)
 
     init {
-        NWICommand.initializeWeights(this)
+        val r = Random()
+        for (i in weights.indices) {
+            weights[i] = r.nextDouble()
+        }
     }
 
     override fun calculateState() {

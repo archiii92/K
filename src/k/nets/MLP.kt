@@ -8,6 +8,9 @@ import k.neuronFactories.AbstractNeuronFactory
 import k.neurons.AbstractMLPNeuron
 import k.utils.DataVector
 import k.utils.format
+import k.utils.toFormatString
+import java.util.*
+import kotlin.collections.ArrayList
 
 open class MLP(
         override val dataFileName: String,
@@ -42,28 +45,10 @@ open class MLP(
     }
 
     final override fun test() {
-        var trainError = 0.0
-        var testError = 0.0
+        val trainError = calculateError(trainData)
+        val testError = calculateError(testData)
 
-        for (dataVector in trainData) {
-            val result = calculate(dataVector)
-            for (i in dataVector.Forecast.indices) {
-                trainError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-                System.out.println("Знач: ${dataVector.Forecast[i].format(3)} Прог: ${result[i].format(3)}")
-            }
-        }
-        trainError = Math.sqrt(trainError / trainData.size)
-
-        for (dataVector in testData) {
-            val result = calculate(dataVector)
-            for (i in dataVector.Forecast.indices) {
-                testError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-                System.out.println("Знач: ${dataVector.Forecast[i].format(3)} Прог: ${result[i].format(3)}")
-            }
-        }
-        testError = Math.sqrt(testError / testData.size)
-
-        System.out.println("Трен: ${trainError.format(6)} Тест: ${testError.format(6)}")
+        System.out.println("Трен СКО: ${trainError.format(6)} Тест СКО: ${testError.format(6)}")
     }
 
     override fun calculate(dataVector: DataVector): DoubleArray {
@@ -74,6 +59,31 @@ open class MLP(
         outputLayer.inputVector = hiddenLayer.outputVector
         outputLayer.calculate()
         return outputLayer.outputVector
+    }
+
+    override fun optimizeMLPNeuronWeigths() {
+        val T = 10
+        for (neuron in hiddenLayer.neurons) {
+            if (neuron is AbstractMLPNeuron) {
+                simulatedAnnealing(neuron, T)
+            }
+        }
+        for (neuron in outputLayer.neurons) {
+            if (neuron is AbstractMLPNeuron) {
+                simulatedAnnealing(neuron, T)
+            }
+        }
+    }
+
+    override fun calculateError(data: ArrayList<DataVector>): Double {
+        var error = 0.0
+        for (dataVector in data) {
+            val result = calculate(dataVector)
+            for (i in dataVector.Forecast.indices) {
+                error += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
+            }
+        }
+        return Math.sqrt(error / data.size)
     }
 
     private fun backPropagation() {
@@ -140,15 +150,8 @@ open class MLP(
                     i++
                 }
             }
-            curError = 0.0
 
-            for (dataVector in trainData) {
-                val result = calculate(dataVector)
-                for (i in dataVector.Forecast.indices) {
-                    curError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-                }
-            }
-            curError = Math.sqrt(curError / (trainData.size))
+            curError = calculateError(trainData)
             errorDiff = Math.abs(prevError - curError)
 
             iteration++
@@ -156,5 +159,35 @@ open class MLP(
 
             System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
+    }
+
+    private fun simulatedAnnealing(neuron: AbstractMLPNeuron, t: Int) {
+        val weightsChanges = DoubleArray(neuron.weights.size)
+        val beforeError = calculateError(trainData)
+        for (i in neuron.weights.indices) {
+            val r = Random()
+            var T = t
+            val beforeWeight = neuron.weights[i]
+            while (T > 0) {
+                val currentError = calculateError(trainData)
+                val oldWeight = neuron.weights[i]
+                neuron.weights[i] = r.nextDouble()
+                val newError = calculateError(trainData)
+
+                val d = newError - currentError
+                if (d > 0) {
+                    val R = r.nextDouble()
+                    val exp = Math.exp(-d / T)
+
+                    if (exp <= R) neuron.weights[i] = oldWeight
+                }
+                T--
+            }
+            val afterWeigth = neuron.weights[i]
+
+            weightsChanges[i] = beforeWeight - afterWeigth
+        }
+        val afterError = calculateError(trainData)
+        println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
     }
 }
