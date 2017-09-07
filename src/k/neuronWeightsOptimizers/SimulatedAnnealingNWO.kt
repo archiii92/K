@@ -6,13 +6,14 @@ import k.utils.format
 import k.utils.toFormatString
 import java.util.*
 
-class SimulatedAnnealingNWO(var T: Int) : NWOCommand {
+class SimulatedAnnealingNWO(val t: Int) : NWOCommand {
     override fun optimizeWeights(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
         val weightsChanges = DoubleArray(neuron.weights.size)
         val beforeError = neuralNetwork.calculateError(neuralNetwork.trainData)
         for (i in neuron.weights.indices) {
             val r = Random()
             val beforeWeight = neuron.weights[i]
+            var T = t
             while (T > 0) {
                 val currentError = neuralNetwork.calculateError(neuralNetwork.trainData)
                 val oldWeight = neuron.weights[i]
@@ -30,7 +31,7 @@ class SimulatedAnnealingNWO(var T: Int) : NWOCommand {
             }
             val afterWeigth = neuron.weights[i]
 
-            weightsChanges[i] = beforeWeight - afterWeigth
+            weightsChanges[i] = afterWeigth - beforeWeight
         }
         val afterError = neuralNetwork.calculateError(neuralNetwork.trainData)
         println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")

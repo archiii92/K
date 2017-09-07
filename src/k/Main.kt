@@ -5,22 +5,23 @@ import k.nets.NeuralNetwork
 import k.neuronFactories.AbstractNeuronFactory
 import k.neuronFactories.LogisticNeuronFactory
 import k.neuronWeightsOptimizers.NWOCommand
-import k.neuronWeightsOptimizers.SimulatedAnnealingNWO
+import k.neuronWeightsOptimizers.ParticleSwarmNWO
 
 fun main(args: Array<String>) {
 
-    //val neuronWeightsOptimizer: NWOCommand = SimulatedAnnealingNWO(10)
     val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
+    //val neuronWeightsOptimizer: NWOCommand = SimulatedAnnealingNWO(30)
+    val neuronWeightsOptimizer: NWOCommand = ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0)
 
     val neuralNetwork: NeuralNetwork = FMLP(
             "gold.txt", // gold.txt temperature.csv
             80,
             3,
-            6,
+            9,
             6,
             1,
             0.0000001,
-            300,
+            100,
             0.001,
             0.00001,
             5000,
@@ -47,7 +48,7 @@ fun main(args: Array<String>) {
 
     neuralNetwork.prepareData()
     neuralNetwork.buildNetwork()
-    neuralNetwork.optimizeMLPNeuronWeigths()
+    neuralNetwork.optimizeMLPNeuronWeigths(neuronWeightsOptimizer)
     neuralNetwork.learn()
     neuralNetwork.test()
 }
