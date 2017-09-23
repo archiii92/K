@@ -6,7 +6,7 @@ import k.utils.format
 import k.utils.toFormatString
 import java.util.*
 
-class SimulatedAnnealingNWO(val t: Int) : NWOCommand {
+class SimulatedAnnealingNWO(val t: Int, override val showLogs: Boolean = false) : NWOCommand {
     override fun optimizeWeights(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
         val weightsChanges = DoubleArray(neuron.weights.size)
         val beforeError = neuralNetwork.calculateError(neuralNetwork.trainData)
@@ -34,6 +34,10 @@ class SimulatedAnnealingNWO(val t: Int) : NWOCommand {
             weightsChanges[i] = afterWeigth - beforeWeight
         }
         val afterError = neuralNetwork.calculateError(neuralNetwork.trainData)
-        println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
+        if (showLogs) println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
+    }
+
+    override fun toString(): String {
+        return "Алгоритм имитации отжига"
     }
 }

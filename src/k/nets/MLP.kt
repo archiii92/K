@@ -19,7 +19,8 @@ open class MLP(
         val η: Double,
         val errorThresholdBackPropagation: Double,
         val iterationThresholdBackPropagation: Int,
-        neuronFactory: AbstractNeuronFactory
+        neuronFactory: AbstractNeuronFactory,
+        override val showLogs: Boolean = false
 ) : NeuralNetwork {
     override val trainData: ArrayList<DataVector> = ArrayList()
     override val testData: ArrayList<DataVector> = ArrayList()
@@ -46,7 +47,7 @@ open class MLP(
         val trainError = calculateError(trainData)
         val testError = calculateError(testData)
 
-        System.out.println("Трен СКО: ${trainError.format(6)} Тест СКО: ${testError.format(6)}")
+        println("Трен СКО: ${trainError.format(6)} Тест СКО: ${testError.format(6)}")
     }
 
     override fun calculate(dataVector: DataVector): DoubleArray {
@@ -124,7 +125,7 @@ open class MLP(
             iteration++
             prevError = curError
 
-            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
+            if (showLogs) println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
 
@@ -141,7 +142,7 @@ open class MLP(
             }
         }
         val afterError = calculateError(trainData)
-        println("Итоговое улучшение ошибки: ${(beforeError - afterError).format(6)}")
+        if (showLogs) println("Итоговое улучшение ошибки: ${(beforeError - afterError).format(6)}")
     }
 
     override fun calculateError(data: ArrayList<DataVector>): Double {
@@ -156,6 +157,7 @@ open class MLP(
     }
 
     override fun clearNetwork() {
-
+        hiddenLayer.clear()
+        outputLayer.clear()
     }
 }

@@ -7,7 +7,7 @@ import k.utils.toFormatString
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ParticleSwarmNWO(particleCount: Int, val iterationCount: Int, φp: Double, φg: Double, k: Double) : NWOCommand {
+class ParticleSwarmNWO(particleCount: Int, val iterationCount: Int, φp: Double, φg: Double, k: Double, override val showLogs: Boolean = false) : NWOCommand {
     val swarm: Swarm = Swarm(particleCount, φp, φg, k)
 
     override fun optimizeWeights(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
@@ -35,9 +35,9 @@ class ParticleSwarmNWO(particleCount: Int, val iterationCount: Int, φp: Double,
             for (j in neuron.weights.indices) {
                 neuron.weights[j] = oldNeuronWeigths[j]
             }
-            println("Алгоритм роя частиц не смог найти лучшей комбинации весов для этого нейрона, чем та, которая у него сейчас")
+            if (showLogs) println("Алгоритм роя частиц не смог найти лучшей комбинации весов для этого нейрона, чем та, которая у него сейчас")
         } else {
-            println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
+            if (showLogs) println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
         }
     }
 
@@ -129,5 +129,9 @@ class ParticleSwarmNWO(particleCount: Int, val iterationCount: Int, φp: Double,
                 x[i] = x[i] + v[i]
             }
         }
+    }
+
+    override fun toString(): String {
+        return "Алгоритм роя частиц"
     }
 }

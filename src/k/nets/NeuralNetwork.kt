@@ -10,6 +10,8 @@ interface NeuralNetwork {
     val trainData: ArrayList<DataVector>
     val testData: ArrayList<DataVector>
 
+    val showLogs: Boolean
+
     fun prepareData()
     fun buildNetwork()
     fun learn()

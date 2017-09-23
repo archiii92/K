@@ -7,13 +7,13 @@ import k.neuronFactories.AbstractNeuronFactory
 import k.neuronFactories.LogisticNeuronFactory
 import k.neuronWeightsOptimizers.GeneticNWO
 import k.neuronWeightsOptimizers.NWOCommand
+import k.neuronWeightsOptimizers.ParticleSwarmNWO
+import k.neuronWeightsOptimizers.SimulatedAnnealingNWO
+import k.utils.format
 
 fun main(args: Array<String>) {
 
     val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
-    //val neuronWeightsOptimizer: NWOCommand = SimulatedAnnealingNWO(100)
-    //val neuronWeightsOptimizer: NWOCommand = ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0)
-    val neuronWeightsOptimizer: NWOCommand = GeneticNWO(25, 20, 1.0, 0.2)
 
 //    val neuralNetwork: NeuralNetwork = FMLP(
 //            "gold.txt", // gold.txt temperature.csv
@@ -48,11 +48,45 @@ fun main(args: Array<String>) {
             neuronFactory
     )
 
-    neuralNetwork.prepareData()
-    neuralNetwork.buildNetwork()
-    //neuralNetwork.optimizeMLPNeuronWeigths(neuronWeightsOptimizer)
-    neuralNetwork.learn()
-    neuralNetwork.test()
+    val researches: ArrayList<NWOCommand> = ArrayList<NWOCommand>()
+    researches.add(SimulatedAnnealingNWO(10))
+    researches.add(SimulatedAnnealingNWO(50))
+    researches.add(SimulatedAnnealingNWO(100))
+
+    researches.add(ParticleSwarmNWO(30, 100, 2.0, 3.0, 1.0))
+    researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
+    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 0.8))
+    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0))
+
+    researches.add(GeneticNWO(15, 35, 1.0, 0.2))
+    researches.add(GeneticNWO(50, 10, 1.0, 0.2))
+    researches.add(GeneticNWO(25, 20, 0.8, 0.4))
+    researches.add(GeneticNWO(25, 20, 1.0, 0.2))
+
+    makeResearch(neuralNetwork, researches, 1)
 }
 
-// TODO: Перейти с Double на Float?
+fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimentsCount: Int){
+    var initError: Double
+    var afterOptimizationError: Double
+    var finalError: Double
+
+    nn.prepareData()
+    nn.buildNetwork()
+
+    for(research in researches){
+        var i = 0
+        while(i < experimentsCount){
+            initError = nn.calculateError(nn.testData)
+            nn.optimizeMLPNeuronWeigths(research)
+            afterOptimizationError = nn.calculateError(nn.testData)
+            nn.learn()
+            finalError = nn.calculateError(nn.testData)
+            System.out.println("${research}: ${initError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
+            nn.clearNetwork()
+            i++
+        }
+    }
+}
+
+//TODO: Перемешивать датасеты при новом эксперименте

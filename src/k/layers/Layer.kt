@@ -9,4 +9,5 @@ interface Layer {
 
     fun build()
     fun calculate()
+    fun clear()
 }

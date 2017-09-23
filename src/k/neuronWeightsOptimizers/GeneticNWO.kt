@@ -7,7 +7,7 @@ import k.utils.toFormatString
 import java.util.*
 import kotlin.collections.ArrayList
 
-class GeneticNWO(speciesCount: Int, val iterationCount: Int, crossPossibility: Double, mutationPossibility: Double) : NWOCommand {
+class GeneticNWO(speciesCount: Int, val iterationCount: Int, crossPossibility: Double, mutationPossibility: Double, override val showLogs: Boolean = false) : NWOCommand {
     val population = Population(speciesCount, crossPossibility, mutationPossibility)
 
     override fun optimizeWeights(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
@@ -35,9 +35,9 @@ class GeneticNWO(speciesCount: Int, val iterationCount: Int, crossPossibility: D
             for (j in neuron.weights.indices) {
                 neuron.weights[j] = oldNeuronWeigths[j]
             }
-            println("Генетический алгоритм не смог найти лучшей комбинации весов для этого нейрона, чем та, которая у него сейчас")
+            if (showLogs) println("Генетический алгоритм не смог найти лучшей комбинации весов для этого нейрона, чем та, которая у него сейчас")
         } else {
-            println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
+            if (showLogs) println("Итог изм весов: ${weightsChanges.toFormatString(4)} Итог улуч ошибки: ${(beforeError - afterError).format(4)}")
         }
     }
 
@@ -142,6 +142,10 @@ class GeneticNWO(speciesCount: Int, val iterationCount: Int, crossPossibility: D
 
             this.gens[gensN] = r.nextDouble()
         }
+    }
+
+    override fun toString(): String {
+        return "Генетический алгоритм"
     }
 }
 

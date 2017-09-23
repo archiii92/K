@@ -78,7 +78,7 @@ fun denormalize(value: Double): Double {
     return value * dif + min
 }
 
-fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
+fun Double.format(digits: Int = 6) = java.lang.String.format("%.${digits}f", this)!!
 
 fun getEuclideanDistance(v1: DoubleArray, v2: DoubleArray): Double {
     return Math.sqrt(v2.indices.sumByDouble { Math.pow(v1[it] - v2[it], 2.0) })
