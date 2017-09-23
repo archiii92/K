@@ -15,7 +15,7 @@ interface NeuralNetwork {
     fun learn()
     fun test()
     fun calculate(dataVector: DataVector): DoubleArray
-
     fun optimizeMLPNeuronWeigths(neuronWeightsOptimizer: NWOCommand)
     fun calculateError(data: ArrayList<DataVector>): Double
+    fun clearNetwork()
 }

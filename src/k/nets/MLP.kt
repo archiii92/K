@@ -59,6 +59,75 @@ open class MLP(
         return outputLayer.outputVector
     }
 
+    private fun backPropagation() {
+        var iteration = 0
+        var prevError = Double.MAX_VALUE
+        var errorDiff: Double
+        var curError: Double
+
+        do {
+            for (dataVector in trainData) {
+                val result = calculate(dataVector)
+
+                // Обратный проход сигнала через выходной слой
+                for ((i, outputNeuron) in outputLayer.neurons.withIndex()) {
+                    if (outputNeuron is AbstractMLPNeuron){
+                        // δ = (y - d) * (df(u2) / du2)
+                        outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
+
+                        // ΔW = - η * δ * v
+                        for (j in outputNeuron.inputVector.indices) {
+                            outputNeuron.ΔW[j] = -η * outputNeuron.δ * outputNeuron.inputVector[j]
+                        }
+                    }
+                }
+
+                // Обратный проход сигнала через скрытый слой
+                for ((i, hiddenNeuron) in hiddenLayer.neurons.withIndex()) {
+                    if (hiddenNeuron is AbstractMLPNeuron){
+                        // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
+                        hiddenNeuron.δ = 0.0
+                        for (outputNeuron in outputLayer.neurons) {
+                            if (outputNeuron is AbstractMLPNeuron) hiddenNeuron.δ += outputNeuron.δ * outputNeuron.weights[i]
+                        }
+                        hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
+
+                        // ΔW = - η * δ * x
+                        for (j in hiddenNeuron.inputVector.indices) {
+                            hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.inputVector[j]
+                        }
+                    }
+                }
+
+                // Уточнение весов вsходного слоя
+                for (outputNeuron in outputLayer.neurons) {
+                    if (outputNeuron is AbstractMLPNeuron) {
+                        for (j in outputNeuron.weights.indices) {
+                            outputNeuron.weights[j] += outputNeuron.ΔW[j]
+                        }
+                    }
+                }
+
+                // Уточнение весов скрытого слоя
+                for (hiddenNeuron in hiddenLayer.neurons) {
+                    if (hiddenNeuron is AbstractMLPNeuron) {
+                        for (j in hiddenNeuron.weights.indices) {
+                            hiddenNeuron.weights[j] += hiddenNeuron.ΔW[j]
+                        }
+                    }
+                }
+            }
+
+            curError = calculateError(trainData)
+            errorDiff = Math.abs(prevError - curError)
+
+            iteration++
+            prevError = curError
+
+            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
+        } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
+    }
+
     override fun optimizeMLPNeuronWeigths(neuronWeightsOptimizer: NWOCommand) {
         val beforeError = calculateError(trainData)
         for (neuron in hiddenLayer.neurons) {
@@ -86,78 +155,7 @@ open class MLP(
         return Math.sqrt(error / data.size)
     }
 
-    private fun backPropagation() {
-        var iteration = 0
-        var prevError = Double.MAX_VALUE
-        var errorDiff: Double
-        var curError: Double
+    override fun clearNetwork() {
 
-        do {
-            for (dataVector in trainData) {
-
-                val result = calculate(dataVector)
-                // Обратный проход сигнала через выходной слой
-                var i = 0
-                while (i < outputLayerSize) {
-                    val outputNeuron = outputLayer.neurons[i] as AbstractMLPNeuron
-                    // δ = (y - d) * (df(u2) / du2)
-                    outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
-
-                    // ΔW = - η * δ * v
-                    for (j in outputNeuron.inputVector.indices) {
-                        outputNeuron.ΔW[j] = -η * outputNeuron.δ * outputNeuron.inputVector[j]
-                    }
-                    i++
-                }
-
-                // Обратный проход сигнала через скрытый слой
-                i = 0
-                while (i < hiddenLayerSize) {
-                    val hiddenNeuron = hiddenLayer.neurons[i] as AbstractMLPNeuron
-
-                    // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
-                    hiddenNeuron.δ = 0.0
-                    for (s in outputLayer.neurons.indices) {
-                        val outputNeuron = outputLayer.neurons[s] as AbstractMLPNeuron
-                        hiddenNeuron.δ += outputNeuron.δ * outputNeuron.weights[i]
-                    }
-                    hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
-
-                    // ΔW = - η * δ * x
-                    for (j in hiddenNeuron.inputVector.indices) {
-                        hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.inputVector[j]
-                    }
-                    i++
-                }
-
-                // Уточнение весов вsходного слоя
-                i = 0
-                while (i < outputLayerSize) {
-                    val outputNeuron = outputLayer.neurons[i] as AbstractMLPNeuron
-                    for (j in outputNeuron.weights.indices) {
-                        outputNeuron.weights[j] += outputNeuron.ΔW[j]
-                    }
-                    i++
-                }
-
-                // Уточнение весов скрытого слоя
-                i = 0
-                while (i < hiddenLayerSize) {
-                    val hiddenNeuron = hiddenLayer.neurons[i] as AbstractMLPNeuron
-                    for (j in hiddenNeuron.weights.indices) {
-                        hiddenNeuron.weights[j] += hiddenNeuron.ΔW[j]
-                    }
-                    i++
-                }
-            }
-
-            curError = calculateError(trainData)
-            errorDiff = Math.abs(prevError - curError)
-
-            iteration++
-            prevError = curError
-
-            System.out.println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
-        } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
 }
