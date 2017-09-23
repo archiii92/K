@@ -20,4 +20,5 @@ interface NeuralNetwork {
     fun optimizeMLPNeuronWeigths(neuronWeightsOptimizer: NWOCommand)
     fun calculateError(data: ArrayList<DataVector>): Double
     fun clearNetwork()
+    fun shuffleData()
 }

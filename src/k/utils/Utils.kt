@@ -6,6 +6,8 @@ import kotlin.collections.ArrayList
 
 var dif = 0.0
 var min = 0.0
+val data = ArrayList<DataVector>()
+var trainDataCount = 0
 
 fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, trainTestDivide: Int, dataFileName: String, inputLayerSize: Int, outputLayerSize: Int) {
     val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName)
@@ -38,8 +40,6 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
 
     dif = max - min
 
-    val trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100
-    val data = ArrayList<DataVector>()
     var i = 0
     while (i < dataValues.count() - inputLayerSize - outputLayerSize) {
         val dataVector = DataVector(inputLayerSize, outputLayerSize)
@@ -60,6 +60,11 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         i++
     }
 
+    trainDataCount = (dataValues.count() - inputLayerSize - outputLayerSize) * trainTestDivide / 100
+    shuffleData(trainData, testData)
+}
+
+fun shuffleData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>){
     Collections.shuffle(data)
     for (j in data.indices) {
         if (j < trainDataCount) {

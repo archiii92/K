@@ -50,20 +50,20 @@ fun main(args: Array<String>) {
 
     val researches: ArrayList<NWOCommand> = ArrayList<NWOCommand>()
     researches.add(SimulatedAnnealingNWO(10))
-    researches.add(SimulatedAnnealingNWO(50))
-    researches.add(SimulatedAnnealingNWO(100))
+    //researches.add(SimulatedAnnealingNWO(50))
+    //researches.add(SimulatedAnnealingNWO(100))
 
     researches.add(ParticleSwarmNWO(30, 100, 2.0, 3.0, 1.0))
-    researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
-    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 0.8))
-    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0))
+    //researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
+    //researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 0.8))
+    //researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0))
 
     researches.add(GeneticNWO(15, 35, 1.0, 0.2))
-    researches.add(GeneticNWO(50, 10, 1.0, 0.2))
-    researches.add(GeneticNWO(25, 20, 0.8, 0.4))
-    researches.add(GeneticNWO(25, 20, 1.0, 0.2))
+    //researches.add(GeneticNWO(50, 10, 1.0, 0.2))
+    //researches.add(GeneticNWO(25, 20, 0.8, 0.4))
+    //researches.add(GeneticNWO(25, 20, 1.0, 0.2))
 
-    makeResearch(neuralNetwork, researches, 1)
+    makeResearch(neuralNetwork, researches, 3)
 }
 
 fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimentsCount: Int){
@@ -74,9 +74,9 @@ fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimen
     nn.prepareData()
     nn.buildNetwork()
 
-    for(research in researches){
-        var i = 0
-        while(i < experimentsCount){
+    var i = 0
+    while(i < experimentsCount) {
+        for (research in researches) {
             initError = nn.calculateError(nn.testData)
             nn.optimizeMLPNeuronWeigths(research)
             afterOptimizationError = nn.calculateError(nn.testData)
@@ -84,9 +84,8 @@ fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimen
             finalError = nn.calculateError(nn.testData)
             System.out.println("${research}: ${initError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
             nn.clearNetwork()
-            i++
         }
+        nn.shuffleData()
+        i++
     }
 }
-
-//TODO: Перемешивать датасеты при новом эксперименте

@@ -160,4 +160,8 @@ open class MLP(
         hiddenLayer.clear()
         outputLayer.clear()
     }
+
+    override fun shuffleData(){
+        k.utils.shuffleData(this.trainData, this.testData)
+    }
 }
