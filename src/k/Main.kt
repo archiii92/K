@@ -1,6 +1,7 @@
 package k
 
 import k.nets.FMLP
+import k.nets.IFMLP
 import k.nets.MLP
 import k.nets.NeuralNetwork
 import k.neuronFactories.AbstractNeuronFactory
@@ -15,38 +16,39 @@ fun main(args: Array<String>) {
 
     val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
 
-//    val neuralNetwork: NeuralNetwork = FMLP(
-//            "gold.txt", // gold.txt temperature.csv
-//            80,
-//            3,
-//            9,
-//            6,
-//            1,
-//            0.0000001,
-//            100,
-//            0.001,
-//            0.00001,
-//            5000,
-//            3,
+    val neuralNetwork: NeuralNetwork = FMLP(
+            "gold.txt", // gold.txt temperature.csv
+            80,
+            3,
+            9,
+            6,
+            1,
+            0.0000001,
+            100,
+            0.001,
+            0.00001,
+            5000,
+            3,
+            neuronFactory,
+            true
+    )
+
+//    val neuralNetwork: NeuralNetwork = MLP(
+//            /* Настройка данных */
+//            "gold.txt", // Название файла с данными // gold.txt temperature.csv
+//            80, // Процент деления обучающего и тестового набора
+//
+//            /* Настройка сети */
+//            3, // Число входных нейронов = размер скользящего окна
+//            4, // Число нейронов скрытого слоя
+//            1, // Число выходных нейронов = размер прогноза
+//
+//            /* Настройка обучения */
+//            0.001, // Коэффициент обучения
+//            0.000001, // Желаемая минимальная разница погрешностей
+//            10000, // Максимальное число итераций обучения
 //            neuronFactory
 //    )
-
-    val neuralNetwork: NeuralNetwork = MLP(
-            /* Настройка данных */
-            "gold.txt", // Название файла с данными // gold.txt temperature.csv
-            80, // Процент деления обучающего и тестового набора
-
-            /* Настройка сети */
-            3, // Число входных нейронов = размер скользящего окна
-            4, // Число нейронов скрытого слоя
-            1, // Число выходных нейронов = размер прогноза
-
-            /* Настройка обучения */
-            0.001, // Коэффициент обучения
-            0.000001, // Желаемая минимальная разница погрешностей
-            10000, // Максимальное число итераций обучения
-            neuronFactory
-    )
 
     val researches: ArrayList<NWOCommand> = ArrayList<NWOCommand>()
     researches.add(SimulatedAnnealingNWO(10))
@@ -63,7 +65,12 @@ fun main(args: Array<String>) {
     //researches.add(GeneticNWO(25, 20, 0.8, 0.4))
     //researches.add(GeneticNWO(25, 20, 1.0, 0.2))
 
-    makeResearch(neuralNetwork, researches, 3)
+    //makeResearch(neuralNetwork, researches, 3)
+    neuralNetwork.prepareData()
+    neuralNetwork.buildNetwork()
+    if (neuralNetwork is IFMLP) neuralNetwork.initFuzzyLayer()
+    neuralNetwork.learn()
+    neuralNetwork.test()
 }
 
 fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimentsCount: Int){
@@ -89,3 +96,5 @@ fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimen
         i++
     }
 }
+
+// TODO: Сделать радиус у Гауссовских нейронов n-мерным. Разобраться с обр расп ошибки у нечеткого мног персептр

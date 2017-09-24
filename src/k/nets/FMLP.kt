@@ -24,16 +24,21 @@ class FMLP(
         errorThresholdBackPropagation: Double,
         iterationThresholdBackPropagation: Int,
         val neighborsCount: Int,
-        neuronFactory: AbstractNeuronFactory
-) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation, neuronFactory) {
+        neuronFactory: AbstractNeuronFactory,
+        override val showLogs: Boolean = false
+) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation, neuronFactory, showLogs), IFMLP {
 
     override val inputLayer: Layer = FuzzyLayer(fuzzyLayerSize, inputLayerSize)
     override val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, fuzzyLayerSize, neuronFactory)
 
-    override fun learn() {
+    override fun clearNetwork() {
+        hiddenLayer.clear()
+        outputLayer.clear()
+    }
+
+    override fun initFuzzyLayer(){
         fuzzyCMeans()
         calcRadiuses(neighborsCount)
-        backPropagation()
     }
 
     private fun fuzzyCMeans() {
@@ -46,11 +51,10 @@ class FMLP(
 
     // Случайная инициализация коэффициентов матрицы u, выбирая их значения из интервала [0,1] таким образом, чтобы соблюдать условие ∑u = 1
     private fun fillUMatrix(u: Array<DoubleArray>) {
-
         val r = Random()
         val vector = DoubleArray(fuzzyLayerSize)
-        for (t in trainData.indices) {
 
+        for (t in trainData.indices) {
             var i = 0
             var sum = 0.0
             while (i < fuzzyLayerSize) {
@@ -74,50 +78,37 @@ class FMLP(
 
         while (true) {
             // Определить M центров c - ci = ∑(uit) ^ m * xt / ∑(uit) ^ m
-            var i = 0
-            while (i < fuzzyLayerSize) {
-                val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
-                fuzzyNeuron.center = DoubleArray(fuzzyNeuron.center.size)
-                i++
-            }
-
-            i = 0
-            while (i < fuzzyLayerSize) {
-                val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
-                val center: DoubleArray = fuzzyNeuron.center
-
-                var denominator = 0.0
-                for (t in trainData.indices) {
-                    val uit = Math.pow(u[i][t], m)
-                    for (j in trainData[t].Window.indices) {
-                        center[j] += uit * trainData[t].Window[j]
+            for ((i, fuzzyNeuron) in inputLayer.neurons.withIndex()) {
+                if (fuzzyNeuron is GaussianNeuron) {
+                    fuzzyNeuron.center = DoubleArray(fuzzyNeuron.center.size)
+                    var denominator = 0.0
+                    for (t in trainData.indices) {
+                        val uit = Math.pow(u[i][t], m)
+                        for (j in fuzzyNeuron.center.indices) {
+                            fuzzyNeuron.center[j] += uit * trainData[t].Window[j]
+                        }
+                        denominator += uit
                     }
-                    denominator += uit
-                }
 
-                for (j in center.indices) {
-                    center[j] /= denominator
+                    for (j in fuzzyNeuron.center.indices) {
+                        fuzzyNeuron.center[j] /= denominator
+                    }
                 }
-                i++
             }
 
             // Рассчитать значение функции погрешности E = ∑∑(uit) ^ m * dit ^ 2
-            i = 0
             curError = 0.0
-            while (i < fuzzyLayerSize) {
-                val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
-                for (t in trainData.indices) {
-                    curError += Math.pow(u[i][t], m) * Math.pow(getEuclideanDistance(fuzzyNeuron.center, trainData[t].Window), 2.0)
+            for ((i, fuzzyNeuron) in inputLayer.neurons.withIndex()) {
+                if (fuzzyNeuron is GaussianNeuron) {
+                    for (t in trainData.indices) {
+                        curError += Math.pow(u[i][t], m) * Math.pow(getEuclideanDistance(fuzzyNeuron.center, trainData[t].Window), 2.0)
+                    }
                 }
-                i++
             }
 
             errorDiff = Math.abs(prevError - curError)
-
             iteration++
-
-            System.out.println("Пред: ${prevError.format(7)} Тек: ${curError.format(7)} Раз: ${errorDiff.format(7)} Итер: $iteration")
-
+            if (showLogs) System.out.println("Пред: ${prevError.format(7)} Тек: ${curError.format(7)} Раз: ${errorDiff.format(7)} Итер: $iteration")
             prevError = curError
 
             if (errorThresholdFuzzyCMeans > errorDiff && iterationThresholdFuzzyCMeans <= iteration) {
@@ -125,159 +116,141 @@ class FMLP(
             }
 
             // Рассчитать новые значения u по формуле 1 / ∑ (dit ^ 2 / dkt ^ 2) ^ (1 / (m - 1))
-            i = 0
-            while (i < fuzzyLayerSize) {
-                val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
-                for (t in trainData.indices) {
+            for ((i, fuzzyNeuron) in inputLayer.neurons.withIndex()) {
+                if (fuzzyNeuron is GaussianNeuron) {
+                    for (t in trainData.indices) {
+                        val dit: Double = Math.pow(getEuclideanDistance(fuzzyNeuron.center, trainData[t].Window), 2.0)
+                        var denominator = 0.0
 
-                    val dit: Double = Math.pow(getEuclideanDistance(fuzzyNeuron.center, trainData[t].Window), 2.0)
-
-                    var denominator = 0.0
-                    var k = 0
-                    while (k < fuzzyLayerSize) {
-                        val fuzzyNeuronK = inputLayer.neurons[k] as GaussianNeuron
-                        val dkt: Double = Math.pow(getEuclideanDistance(fuzzyNeuronK.center, trainData[t].Window), 2.0)
-                        denominator += Math.pow(dit / dkt, 1 / (m - 1))
-
-                        k++
+                        for (fuzzyNeuronK in inputLayer.neurons) {
+                            if (fuzzyNeuronK is GaussianNeuron) {
+                                val dkt: Double = Math.pow(getEuclideanDistance(fuzzyNeuronK.center, trainData[t].Window), 2.0)
+                                denominator += Math.pow(dit / dkt, 1 / (m - 1))
+                            }
+                        }
+                        u[i][t] = 1 / denominator
                     }
-
-                    u[i][t] = 1 / denominator
                 }
-                i++
             }
         }
     }
 
     private fun calcRadiuses(neighborsCount: Int) {
-        var i = 0
-        while (i < fuzzyLayerSize) {
-            val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
-            val norms = DoubleArray(fuzzyLayerSize - 1)
+        for (fuzzyNeuron in inputLayer.neurons) {
+            if (fuzzyNeuron is GaussianNeuron) {
+                val norms = DoubleArray(fuzzyLayerSize - 1)
 
-            var j = 0
-            var q = 0
-            while (j < fuzzyLayerSize) {
-                val fuzzyNeuronJ = inputLayer.neurons[j] as GaussianNeuron
-                if (i != j) {
-                    norms[q] = getEuclideanDistance(fuzzyNeuron.center, fuzzyNeuronJ.center)
-                    q++
+                var q = 0
+                for (fuzzyNeuronJ in inputLayer.neurons) {
+                    if (fuzzyNeuronJ is GaussianNeuron) {
+                        if (fuzzyNeuron != fuzzyNeuronJ) {
+                            norms[q] = getEuclideanDistance(fuzzyNeuron.center, fuzzyNeuronJ.center)
+                            q++
+                        }
+                    }
                 }
-                j++
+
+                norms.sort()
+                var radius = 0.0
+                var k = 0
+                while (k < neighborsCount && k < norms.size) {
+                    radius += Math.pow(norms[k], 2.0)
+                    k++
+                }
+
+                radius = Math.sqrt(radius / k)
+                fuzzyNeuron.radius = radius
             }
-
-            norms.sort()
-
-            var radius = 0.0
-            var k = 0
-            while (k < neighborsCount && k < norms.size) {
-                radius += Math.pow(norms[k], 2.0)
-                k++
-            }
-
-            radius = Math.sqrt(radius / k)
-
-            fuzzyNeuron.radius = radius
-
-            i++
         }
     }
 
-    private fun backPropagation() {
+    override fun backPropagation() {
         var iteration = 0
-        var prevError: Double = Double.MAX_VALUE
+        var prevError = Double.MAX_VALUE
         var errorDiff: Double
         var curError: Double
 
         do {
             for (dataVector in trainData) {
                 val result = calculate(dataVector)
-                // Обратный проход сигнала через выходной слой
-                var i = 0
-                while (i < outputLayerSize) {
-                    val outputNeuron = outputLayer.neurons[i] as AbstractMLPNeuron
-                    // δ = (y - d) * (df(u2) / du2)
-                    outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
 
-                    // ΔW = - η * δ * v
-                    for (j in outputNeuron.inputVector.indices) {
-                        outputNeuron.ΔW[j] = -η * outputNeuron.δ * outputNeuron.inputVector[j]
+                // Обратный проход сигнала через выходной слой
+                for ((i, outputNeuron) in outputLayer.neurons.withIndex()) {
+                    if (outputNeuron is AbstractMLPNeuron){
+                        // δ = (y - d) * (df(u2) / du2)
+                        outputNeuron.δ = (result[i] - dataVector.Forecast[i]) * outputNeuron.activationFunctionDerivative(outputNeuron.sum)
+
+                        // ΔW = - η * δ * v
+                        for (j in outputNeuron.inputVector.indices) {
+                            outputNeuron.ΔW[j] = -η * outputNeuron.δ * outputNeuron.inputVector[j]
+                        }
                     }
-                    i++
                 }
 
                 // Обратный проход сигнала через скрытый слой
-                i = 0
-                while (i < hiddenLayerSize) {
-                    val hiddenNeuron = hiddenLayer.neurons[i] as AbstractMLPNeuron
+                for ((i, hiddenNeuron) in hiddenLayer.neurons.withIndex()) {
+                    if (hiddenNeuron is AbstractMLPNeuron){
+                        // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
+                        hiddenNeuron.δ = 0.0
+                        for (outputNeuron in outputLayer.neurons) {
+                            if (outputNeuron is AbstractMLPNeuron) hiddenNeuron.δ += outputNeuron.δ * outputNeuron.weights[i]
+                        }
+                        hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
 
-                    // δ = ∑(y - d) * (df(u1) / du1) * w * (df(u2) / du2)
-                    hiddenNeuron.δ = 0.0
-                    for (s in outputLayer.neurons.indices) {
-                        val outputNeuron = outputLayer.neurons[s] as AbstractMLPNeuron
-                        hiddenNeuron.δ += outputNeuron.δ * outputNeuron.weights[i]
+                        // ΔW = - η * δ * x
+                        for (j in hiddenNeuron.inputVector.indices) {
+                            hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.inputVector[j]
+                        }
                     }
-                    hiddenNeuron.δ *= hiddenNeuron.activationFunctionDerivative(hiddenNeuron.sum)
-
-                    // ΔW = - η * δ * x
-                    for (j in hiddenNeuron.inputVector.indices) {
-                        hiddenNeuron.ΔW[j] = -η * hiddenNeuron.δ * hiddenNeuron.inputVector[j]
-                    }
-                    i++
                 }
 
-                i = 0
-                while (i < fuzzyLayerSize) {
-                    val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
+                for ((i, fuzzyNeuron) in inputLayer.neurons.withIndex()) {
+                    if (fuzzyNeuron is GaussianNeuron) {
+                        var sum = 0.0
+                        var k = 0
+                        while (k < hiddenLayerSize) {
+                            val hiddenNeuron = hiddenLayer.neurons[k] as AbstractMLPNeuron
+                            sum += hiddenNeuron.δ * hiddenNeuron.weights[i] * fuzzyNeuron.outputValue
+                            k++
+                        }
+                        //constant /= hiddenLayer.size
 
-                    var sum = 0.0
-                    var k = 0
-                    while (k < hiddenLayerSize) {
-                        val hiddenNeuron = hiddenLayer.neurons[k] as AbstractMLPNeuron
-                        sum += hiddenNeuron.δ * hiddenNeuron.weights[i] * fuzzyNeuron.outputValue
-                        k++
+                        fuzzyNeuron.dEdr = 0.0
+                        for (j in fuzzyNeuron.center.indices) {
+                            fuzzyNeuron.dEdc[j] = sum * (fuzzyNeuron.inputVector[j] - fuzzyNeuron.center[j]) / Math.pow(fuzzyNeuron.radius, 2.0)
+                            fuzzyNeuron.dEdr += fuzzyNeuron.dEdc[j] / fuzzyNeuron.radius
+                        }
+
+                        fuzzyNeuron.dEdr /= fuzzyNeuron.center.size
                     }
-                    //constant /= hiddenLayer.size
-
-                    fuzzyNeuron.dEdr = 0.0
-                    for (j in fuzzyNeuron.center.indices) {
-                        fuzzyNeuron.dEdc[j] = sum * (fuzzyNeuron.inputVector[j] - fuzzyNeuron.center[j]) / Math.pow(fuzzyNeuron.radius, 2.0)
-                        fuzzyNeuron.dEdr += fuzzyNeuron.dEdc[j] / fuzzyNeuron.radius
-                    }
-
-                    fuzzyNeuron.dEdr /= fuzzyNeuron.center.size
-                    i++
                 }
 
                 // Уточнение весов вsходного слоя
-                i = 0
-                while (i < outputLayerSize) {
-                    val outputNeuron = outputLayer.neurons[i] as AbstractMLPNeuron
-                    for (j in outputNeuron.weights.indices) {
-                        outputNeuron.weights[j] += outputNeuron.ΔW[j]
+                for (outputNeuron in outputLayer.neurons) {
+                    if (outputNeuron is AbstractMLPNeuron) {
+                        for (j in outputNeuron.weights.indices) {
+                            outputNeuron.weights[j] += outputNeuron.ΔW[j]
+                        }
                     }
-                    i++
                 }
 
                 // Уточнение весов скрытого слоя
-                i = 0
-                while (i < hiddenLayerSize) {
-                    val hiddenNeuron = hiddenLayer.neurons[i] as AbstractMLPNeuron
-                    for (j in hiddenNeuron.weights.indices) {
-                        hiddenNeuron.weights[j] += hiddenNeuron.ΔW[j]
+                for (hiddenNeuron in hiddenLayer.neurons) {
+                    if (hiddenNeuron is AbstractMLPNeuron) {
+                        for (j in hiddenNeuron.weights.indices) {
+                            hiddenNeuron.weights[j] += hiddenNeuron.ΔW[j]
+                        }
                     }
-                    i++
                 }
 
                 // Уточнение центра и радиуса нечеткого слоя
-                i = 0
-                while (i < fuzzyLayerSize) {
-                    val fuzzyNeuron = inputLayer.neurons[i] as GaussianNeuron
-                    for (k in fuzzyNeuron.center.indices) {
-                        fuzzyNeuron.center[k] += -η * fuzzyNeuron.dEdc[k]
+                for ((i, fuzzyNeuron) in inputLayer.neurons.withIndex()) {
+                    if (fuzzyNeuron is GaussianNeuron) {
+                        for (k in fuzzyNeuron.center.indices) {
+                            fuzzyNeuron.center[k] += -η * fuzzyNeuron.dEdc[k]
+                        }
+                        fuzzyNeuron.radius += -η * fuzzyNeuron.dEdr
                     }
-                    fuzzyNeuron.radius += -η * fuzzyNeuron.dEdr
-                    i++
                 }
             }
             curError = 0.0
@@ -294,7 +267,7 @@ class FMLP(
             iteration++
             prevError = curError
 
-            System.out.println("Пред: ${prevError.format(8)} Тек: ${curError.format(8)} Раз: ${errorDiff.format(8)} Итер: $iteration")
+            if (showLogs) println("Пред: ${prevError.format(8)} Тек: ${curError.format(8)} Раз: ${errorDiff.format(8)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
     }
 }

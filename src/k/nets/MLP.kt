@@ -60,7 +60,43 @@ open class MLP(
         return outputLayer.outputVector
     }
 
-    private fun backPropagation() {
+    override fun optimizeMLPNeuronWeigths(neuronWeightsOptimizer: NWOCommand) {
+        val beforeError = calculateError(trainData)
+        for (neuron in hiddenLayer.neurons) {
+            if (neuron is AbstractMLPNeuron) {
+                neuronWeightsOptimizer.optimizeWeights(neuron, this)
+            }
+        }
+        for (neuron in outputLayer.neurons) {
+            if (neuron is AbstractMLPNeuron) {
+                neuronWeightsOptimizer.optimizeWeights(neuron, this)
+            }
+        }
+        val afterError = calculateError(trainData)
+        if (showLogs) println("Итоговое улучшение ошибки: ${(beforeError - afterError).format(6)}")
+    }
+
+    override fun calculateError(data: ArrayList<DataVector>): Double {
+        var error = 0.0
+        for (dataVector in data) {
+            val result = calculate(dataVector)
+            for (i in dataVector.Forecast.indices) {
+                error += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
+            }
+        }
+        return Math.sqrt(error / data.size)
+    }
+
+    override fun clearNetwork() {
+        hiddenLayer.clear()
+        outputLayer.clear()
+    }
+
+    override fun shuffleData(){
+        k.utils.shuffleData(this.trainData, this.testData)
+    }
+
+    open fun backPropagation() {
         var iteration = 0
         var prevError = Double.MAX_VALUE
         var errorDiff: Double
@@ -127,41 +163,5 @@ open class MLP(
 
             if (showLogs) println("Пред: ${prevError.format(6)} Тек: ${curError.format(6)} Раз: ${errorDiff.format(6)} Итер: $iteration")
         } while (errorThresholdBackPropagation < errorDiff && iterationThresholdBackPropagation > iteration)
-    }
-
-    override fun optimizeMLPNeuronWeigths(neuronWeightsOptimizer: NWOCommand) {
-        val beforeError = calculateError(trainData)
-        for (neuron in hiddenLayer.neurons) {
-            if (neuron is AbstractMLPNeuron) {
-                neuronWeightsOptimizer.optimizeWeights(neuron, this)
-            }
-        }
-        for (neuron in outputLayer.neurons) {
-            if (neuron is AbstractMLPNeuron) {
-                neuronWeightsOptimizer.optimizeWeights(neuron, this)
-            }
-        }
-        val afterError = calculateError(trainData)
-        if (showLogs) println("Итоговое улучшение ошибки: ${(beforeError - afterError).format(6)}")
-    }
-
-    override fun calculateError(data: ArrayList<DataVector>): Double {
-        var error = 0.0
-        for (dataVector in data) {
-            val result = calculate(dataVector)
-            for (i in dataVector.Forecast.indices) {
-                error += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-            }
-        }
-        return Math.sqrt(error / data.size)
-    }
-
-    override fun clearNetwork() {
-        hiddenLayer.clear()
-        outputLayer.clear()
-    }
-
-    override fun shuffleData(){
-        k.utils.shuffleData(this.trainData, this.testData)
     }
 }
