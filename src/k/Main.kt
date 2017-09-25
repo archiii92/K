@@ -2,7 +2,6 @@ package k
 
 import k.nets.FMLP
 import k.nets.IFMLP
-import k.nets.MLP
 import k.nets.NeuralNetwork
 import k.neuronFactories.AbstractNeuronFactory
 import k.neuronFactories.LogisticNeuronFactory
@@ -29,8 +28,7 @@ fun main(args: Array<String>) {
             0.00001,
             5000,
             3,
-            neuronFactory,
-            true
+            neuronFactory
     )
 
 //    val neuralNetwork: NeuralNetwork = MLP(
@@ -52,29 +50,25 @@ fun main(args: Array<String>) {
 
     val researches: ArrayList<NWOCommand> = ArrayList<NWOCommand>()
     researches.add(SimulatedAnnealingNWO(10))
-    //researches.add(SimulatedAnnealingNWO(50))
-    //researches.add(SimulatedAnnealingNWO(100))
+    researches.add(SimulatedAnnealingNWO(50))
+    researches.add(SimulatedAnnealingNWO(100))
 
     researches.add(ParticleSwarmNWO(30, 100, 2.0, 3.0, 1.0))
-    //researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
-    //researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 0.8))
-    //researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0))
+    researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
+    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 0.8))
+    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0))
 
     researches.add(GeneticNWO(15, 35, 1.0, 0.2))
-    //researches.add(GeneticNWO(50, 10, 1.0, 0.2))
-    //researches.add(GeneticNWO(25, 20, 0.8, 0.4))
-    //researches.add(GeneticNWO(25, 20, 1.0, 0.2))
+    researches.add(GeneticNWO(50, 10, 1.0, 0.2))
+    researches.add(GeneticNWO(25, 20, 0.8, 0.4))
+    researches.add(GeneticNWO(25, 20, 1.0, 0.2))
 
-    //makeResearch(neuralNetwork, researches, 3)
-    neuralNetwork.prepareData()
-    neuralNetwork.buildNetwork()
-    if (neuralNetwork is IFMLP) neuralNetwork.initFuzzyLayer()
-    neuralNetwork.learn()
-    neuralNetwork.test()
+    makeResearch(neuralNetwork, researches, 3)
 }
 
 fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimentsCount: Int){
     var initError: Double
+    var afterFuzzyLayerInitError: Double = 0.0
     var afterOptimizationError: Double
     var finalError: Double
 
@@ -85,16 +79,22 @@ fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimen
     while(i < experimentsCount) {
         for (research in researches) {
             initError = nn.calculateError(nn.testData)
+            if (nn is IFMLP) {
+                nn.initFuzzyLayer()
+                afterFuzzyLayerInitError = nn.calculateError(nn.testData)
+            }
             nn.optimizeMLPNeuronWeigths(research)
             afterOptimizationError = nn.calculateError(nn.testData)
             nn.learn()
             finalError = nn.calculateError(nn.testData)
-            System.out.println("${research}: ${initError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
+            if (nn is IFMLP) {
+                println("${research}: ${initError.format()} ${afterFuzzyLayerInitError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
+            } else {
+                println("${research}: ${initError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
+            }
             nn.clearNetwork()
         }
         nn.shuffleData()
         i++
     }
 }
-
-// TODO: Сделать радиус у Гауссовских нейронов n-мерным. Разобраться с обр расп ошибки у нечеткого мног персептр

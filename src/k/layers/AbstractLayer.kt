@@ -1,6 +1,7 @@
 package k.layers
 
 import k.neurons.AbstractMLPNeuron
+import k.neurons.GaussianNeuron
 import java.util.*
 
 abstract class AbstractLayer(val layerSize: Int) : Layer {
@@ -13,6 +14,10 @@ abstract class AbstractLayer(val layerSize: Int) : Layer {
             if (it is AbstractMLPNeuron){
                 for (i in it.weights.indices) {
                     it.weights[i] = r.nextDouble()
+                }
+            } else if (it is GaussianNeuron) {
+                for (i in it.radius.indices) {
+                    it.radius[i] = 1.0
                 }
             }
         }

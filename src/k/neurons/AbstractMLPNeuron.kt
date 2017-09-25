@@ -3,14 +3,14 @@ package k.neurons
 import java.util.*
 
 abstract class AbstractMLPNeuron(inputVectorSize: Int) : Neuron {
-    var inputVector: DoubleArray = DoubleArray(inputVectorSize)
-    final override var outputValue: Double = 0.0
+    var inputVector = DoubleArray(inputVectorSize)
+    final override var outputValue = 0.0
 
-    var sum: Double = 0.0
-    val weights: DoubleArray = DoubleArray(inputVectorSize)
+    var sum = 0.0
+    val weights = DoubleArray(inputVectorSize)
 
-    var δ: Double = 0.0
-    var ΔW: DoubleArray = DoubleArray(inputVectorSize)
+    var δ = 0.0
+    var ΔW = DoubleArray(inputVectorSize)
 
     init {
         val r = Random()

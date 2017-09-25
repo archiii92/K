@@ -3,7 +3,7 @@ package k.neurons
 /* Нейрон с логистической функцией активации */
 class LogisticNeuron(inputVectorSize: Int) : AbstractMLPNeuron(inputVectorSize) {
 
-    var k: Double = 1.0 // Коэффициент логистической функции
+    var k = 1.0 // Коэффициент логистической функции
 
     /* Логистическая функция */
     override fun activationFunction(x: Double): Double {
