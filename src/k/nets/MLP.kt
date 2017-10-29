@@ -4,6 +4,7 @@ import k.layers.HiddenLayer
 import k.layers.InputLayer
 import k.layers.Layer
 import k.layers.OutputLayer
+import k.neuralNetworkCriterias.NNCCommand
 import k.neuronFactories.AbstractNeuronFactory
 import k.neuronWeightsOptimizers.NWOCommand
 import k.neurons.AbstractMLPNeuron
@@ -20,6 +21,7 @@ open class MLP(
         val errorThresholdBackPropagation: Double,
         val iterationThresholdBackPropagation: Int,
         neuronFactory: AbstractNeuronFactory,
+        val neuralNetworkCriteria: NNCCommand,
         override val showLogs: Boolean = false
 ) : NeuralNetwork {
     override val trainData: ArrayList<DataVector> = ArrayList()
@@ -77,14 +79,7 @@ open class MLP(
     }
 
     override fun calculateError(data: ArrayList<DataVector>): Double {
-        var error = 0.0
-        for (dataVector in data) {
-            val result = calculate(dataVector)
-            for (i in dataVector.Forecast.indices) {
-                error += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
-            }
-        }
-        return Math.sqrt(error / data.size)
+        return neuralNetworkCriteria.calculateCriteria(data, this)
     }
 
     override fun clearNetwork() {
@@ -155,7 +150,18 @@ open class MLP(
                 }
             }
 
-            curError = calculateError(trainData)
+            // При обучении ставится задача минимизации целевой функции, формируемой, как правило, в виде квадратичной
+            // суммы разностей между фактическими и ожидаемыми значениями выходных сигналовE(w)=1/2 * ∑∑ (y - d ) ^ 2
+            curError = 0.0
+            for (dataVector in trainData) {
+                val result = calculate(dataVector)
+                for (i in dataVector.Forecast.indices) {
+                    curError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
+                }
+            }
+
+            curError /= 2
+
             errorDiff = Math.abs(prevError - curError)
 
             iteration++

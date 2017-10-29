@@ -3,6 +3,8 @@ package k
 import k.nets.FMLP
 import k.nets.IFMLP
 import k.nets.NeuralNetwork
+import k.neuralNetworkCriterias.NNCCommand
+import k.neuralNetworkCriterias.TayleDiscrepancyRatioNNC
 import k.neuronFactories.AbstractNeuronFactory
 import k.neuronFactories.LogisticNeuronFactory
 import k.neuronWeightsOptimizers.GeneticNWO
@@ -14,6 +16,7 @@ import k.utils.format
 fun main(args: Array<String>) {
 
     val neuronFactory: AbstractNeuronFactory = LogisticNeuronFactory()
+    val neuralNetworkCriteria: NNCCommand = TayleDiscrepancyRatioNNC()
 
     val neuralNetwork: NeuralNetwork = FMLP(
             "gold.txt", // gold.txt temperature.csv
@@ -28,7 +31,8 @@ fun main(args: Array<String>) {
             0.00001,
             5000,
             3,
-            neuronFactory
+            neuronFactory,
+            neuralNetworkCriteria
     )
 
 //    val neuralNetwork: NeuralNetwork = MLP(
@@ -45,7 +49,8 @@ fun main(args: Array<String>) {
 //            0.001, // Коэффициент обучения
 //            0.000001, // Желаемая минимальная разница погрешностей
 //            10000, // Максимальное число итераций обучения
-//            neuronFactory
+//            neuronFactory,
+//            neuralNetworkCriteria
 //    )
 
     val researches: ArrayList<NWOCommand> = ArrayList<NWOCommand>()
@@ -63,7 +68,7 @@ fun main(args: Array<String>) {
     researches.add(GeneticNWO(25, 20, 0.8, 0.4))
     researches.add(GeneticNWO(25, 20, 1.0, 0.2))
 
-    makeResearch(neuralNetwork, researches, 3)
+    makeResearch(neuralNetwork, researches, 1)
 }
 
 fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimentsCount: Int){

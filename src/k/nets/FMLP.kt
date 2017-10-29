@@ -3,11 +3,11 @@ package k.nets
 import k.layers.FuzzyLayer
 import k.layers.HiddenLayer
 import k.layers.Layer
+import k.neuralNetworkCriterias.NNCCommand
 import k.neuronFactories.AbstractNeuronFactory
 import k.neurons.AbstractMLPNeuron
 import k.neurons.GaussianNeuron
 import k.neurons.Neuron
-import k.utils.DataVector
 import k.utils.format
 import k.utils.getEuclideanDistance
 import java.util.*
@@ -26,8 +26,9 @@ class FMLP(
         iterationThresholdBackPropagation: Int,
         val neighborsCount: Int,
         neuronFactory: AbstractNeuronFactory,
+        neuralNetworkCriteria: NNCCommand,
         override val showLogs: Boolean = false
-) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation, neuronFactory, showLogs), IFMLP {
+) : MLP(dataFileName, trainTestDivide, inputLayerSize, hiddenLayerSize, outputLayerSize, η, errorThresholdBackPropagation, iterationThresholdBackPropagation, neuronFactory, neuralNetworkCriteria, showLogs), IFMLP {
     override val inputLayer: Layer = FuzzyLayer(fuzzyLayerSize, inputLayerSize)
     override val hiddenLayer: Layer = HiddenLayer(hiddenLayerSize, fuzzyLayerSize, neuronFactory)
 
@@ -260,13 +261,14 @@ class FMLP(
             }
 
             curError = 0.0
-            for (dataVector: DataVector in trainData) {
+            for (dataVector in trainData) {
                 val result = calculate(dataVector)
                 for (i in dataVector.Forecast.indices) {
                     curError += Math.pow(result[i] - dataVector.Forecast[i], 2.0)
                 }
             }
-            curError = Math.sqrt(curError / (trainData.size))
+
+            curError /= 2
             errorDiff = Math.abs(prevError - curError)
 
             iteration++
