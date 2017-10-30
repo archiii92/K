@@ -7,7 +7,7 @@ import k.utils.toFormatString
 import java.util.*
 import kotlin.collections.ArrayList
 
-class GeneticNWO(speciesCount: Int, val iterationCount: Int, crossPossibility: Double, mutationPossibility: Double, override val showLogs: Boolean = false) : NWOCommand {
+class GeneticNWO(val speciesCount: Int, val iterationCount: Int, val crossPossibility: Double, val mutationPossibility: Double, override val showLogs: Boolean = false) : NWOCommand {
     val population = Population(speciesCount, crossPossibility, mutationPossibility)
 
     override fun optimizeWeights(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
@@ -145,7 +145,7 @@ class GeneticNWO(speciesCount: Int, val iterationCount: Int, crossPossibility: D
     }
 
     override fun toString(): String {
-        return "Генетический алгоритм"
+        return "Генетический алгоритм q = ${speciesCount}, t = ${iterationCount}, p = ${crossPossibility} и m = ${mutationPossibility}"
     }
 }
 

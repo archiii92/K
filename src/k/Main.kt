@@ -54,26 +54,52 @@ fun main(args: Array<String>) {
 //    )
 
     val researches: ArrayList<NWOCommand> = ArrayList<NWOCommand>()
-    researches.add(SimulatedAnnealingNWO(10))
-    researches.add(SimulatedAnnealingNWO(50))
-    researches.add(SimulatedAnnealingNWO(100))
 
-    researches.add(ParticleSwarmNWO(30, 100, 2.0, 3.0, 1.0))
-    researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
-    researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 0.8))
+//    researches.add(SimulatedAnnealingNWO(300.0, 0.9))
+    researches.add(SimulatedAnnealingNWO(300.0, 0.8))
+//
+//    researches.add(SimulatedAnnealingNWO(100.0, 0.9))
+//    researches.add(SimulatedAnnealingNWO(100.0, 0.8))
+//
+    researches.add(SimulatedAnnealingNWO(50.0, 0.9))
+//    researches.add(SimulatedAnnealingNWO(50.0, 0.8))
+
+//    researches.add(GeneticNWO(70, 10, 1.0, 0.0))
+//    researches.add(GeneticNWO(70, 10, 0.8, 0.2))
+//    researches.add(GeneticNWO(70, 10, 0.5, 0.5))
+//    researches.add(GeneticNWO(70, 10, 1.0, 0.5))
+//
+//    researches.add(GeneticNWO(15, 65, 1.0, 0.0))
+//    researches.add(GeneticNWO(15, 65, 0.8, 0.2))
+//    researches.add(GeneticNWO(15, 65, 0.5, 0.5))
+    researches.add(GeneticNWO(15, 65, 1.0, 0.5))
+//
+//    researches.add(GeneticNWO(40, 40, 1.0, 0.0))
+//    researches.add(GeneticNWO(40, 40, 0.8, 0.2))
+//    researches.add(GeneticNWO(40, 40, 0.5, 0.5))
+    researches.add(GeneticNWO(40, 40, 1.0, 0.5))
+
+    //    researches.add(ParticleSwarmNWO(100, 30, 3.0, 2.0, 1.0))
     researches.add(ParticleSwarmNWO(100, 30, 2.0, 3.0, 1.0))
+//    researches.add(ParticleSwarmNWO(100, 30, 2.5, 2.5, 0.7))
+//    researches.add(ParticleSwarmNWO(100, 30, 1.5, 4.0, 1.0))
 
-    researches.add(GeneticNWO(15, 35, 1.0, 0.2))
-    researches.add(GeneticNWO(50, 10, 1.0, 0.2))
-    researches.add(GeneticNWO(25, 20, 0.8, 0.4))
-    researches.add(GeneticNWO(25, 20, 1.0, 0.2))
+//    researches.add(ParticleSwarmNWO(50, 50, 3.0, 2.0, 1.0))
+//    researches.add(ParticleSwarmNWO(50, 50, 2.0, 3.0, 1.0))
+//    researches.add(ParticleSwarmNWO(50, 50, 2.5, 2.5, 0.7))
+//    researches.add(ParticleSwarmNWO(50, 50, 1.5, 4.0, 1.0))
 
-    makeResearch(neuralNetwork, researches, 1)
+//    researches.add(ParticleSwarmNWO(30, 100, 3.0, 2.0, 1.0))
+//    researches.add(ParticleSwarmNWO(30, 100, 2.0, 3.0, 1.0))
+//    researches.add(ParticleSwarmNWO(30, 100, 2.5, 2.5, 0.7))
+    researches.add(ParticleSwarmNWO(30, 100, 1.5, 4.0, 1.0))
+
+    makeResearch(neuralNetwork, researches, 5)
 }
 
 fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimentsCount: Int){
     var initError: Double
-    var afterFuzzyLayerInitError: Double = 0.0
+    var afterFuzzyLayerInitError = 0.0
     var afterOptimizationError: Double
     var finalError: Double
 
@@ -94,6 +120,7 @@ fun makeResearch(nn: NeuralNetwork, researches: ArrayList<NWOCommand>, experimen
             finalError = nn.calculateError(nn.testData)
             if (nn is IFMLP) {
                 println("${research}: ${initError.format()} ${afterFuzzyLayerInitError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
+                println("Эффективность алгоритма: ${(afterFuzzyLayerInitError - afterOptimizationError).format()}")
             } else {
                 println("${research}: ${initError.format()} ${afterOptimizationError.format()} ${finalError.format()}")
             }

@@ -7,7 +7,7 @@ import k.utils.toFormatString
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ParticleSwarmNWO(particleCount: Int, val iterationCount: Int, φp: Double, φg: Double, k: Double, override val showLogs: Boolean = false) : NWOCommand {
+class ParticleSwarmNWO(val particleCount: Int, val iterationCount: Int, val φp: Double, val φg: Double, val k: Double, override val showLogs: Boolean = false) : NWOCommand {
     val swarm: Swarm = Swarm(particleCount, φp, φg, k)
 
     override fun optimizeWeights(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
@@ -132,6 +132,6 @@ class ParticleSwarmNWO(particleCount: Int, val iterationCount: Int, φp: Double,
     }
 
     override fun toString(): String {
-        return "Алгоритм роя частиц"
+        return "Алгоритм роя частиц q = ${particleCount}, t = ${iterationCount}, φp = ${φp}, φg = ${φg} и k = ${k}"
     }
 }
