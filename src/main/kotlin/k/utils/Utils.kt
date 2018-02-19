@@ -10,7 +10,8 @@ val data = ArrayList<DataVector>()
 var trainDataCount = 0
 
 fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, trainTestDivide: Int, dataFileName: String, inputLayerSize: Int, outputLayerSize: Int) {
-    val fileIn = ClassLoader.getSystemResourceAsStream("k/datasets/$dataFileName") ?: throw FileNotFoundException(dataFileName)
+    val fileIn = ClassLoader.getSystemResourceAsStream("datasets/$dataFileName")
+            ?: throw FileNotFoundException(dataFileName)
 
     val scanner = Scanner(fileIn)
     val readedLines = ArrayList<String>()
