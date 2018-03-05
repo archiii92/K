@@ -13,7 +13,8 @@ buildscript {
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
-mainClassName = 'kotlinFMLP.KotlinFMLPAppKt'
+//mainClassName = 'kotlinFMLP.KotlinFMLPAppKt'
+mainClassName = 'kotlinFMLP.MainKt'
 
 defaultTasks 'run'
 

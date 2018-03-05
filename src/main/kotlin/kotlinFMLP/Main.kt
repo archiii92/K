@@ -7,10 +7,8 @@ import kotlinFMLP.neuralNetworkCriterias.NNCCommand
 import kotlinFMLP.neuralNetworkCriterias.TayleDiscrepancyRatioNNC
 import kotlinFMLP.neuronFactories.AbstractNeuronFactory
 import kotlinFMLP.neuronFactories.LogisticNeuronFactory
-import kotlinFMLP.neuronWeightsOptimizers.GeneticNWO
+import kotlinFMLP.neuronWeightsOptimizers.AntColonyNWO
 import kotlinFMLP.neuronWeightsOptimizers.NWOCommand
-import kotlinFMLP.neuronWeightsOptimizers.ParticleSwarmNWO
-import kotlinFMLP.neuronWeightsOptimizers.SimulatedAnnealingNWO
 import kotlinFMLP.utils.format
 
 fun main(args: Array<String>) {
@@ -57,11 +55,11 @@ fun main(args: Array<String>) {
 
 //    researches.add(SimulatedAnnealingNWO(300.0, 0.9))
 //    researches.add(SimulatedAnnealingNWO(300.0, 0.8))
-//
+
 //    researches.add(SimulatedAnnealingNWO(100.0, 0.9))
 //    researches.add(SimulatedAnnealingNWO(100.0, 0.8))
 //
-    researches.add(SimulatedAnnealingNWO(50.0, 0.9))
+//    researches.add(SimulatedAnnealingNWO(50.0, 0.9))
 //    researches.add(SimulatedAnnealingNWO(50.0, 0.8))
 
 //    researches.add(GeneticNWO(70, 10, 1.0, 0.0))
@@ -72,7 +70,7 @@ fun main(args: Array<String>) {
 //    researches.add(GeneticNWO(15, 65, 1.0, 0.0))
 //    researches.add(GeneticNWO(15, 65, 0.8, 0.2))
 //    researches.add(GeneticNWO(15, 65, 0.5, 0.5))
-    researches.add(GeneticNWO(15, 65, 1.0, 0.5))
+//    researches.add(GeneticNWO(15, 65, 1.0, 0.5))
 //
 //    researches.add(GeneticNWO(40, 40, 1.0, 0.0))
 //    researches.add(GeneticNWO(40, 40, 0.8, 0.2))
@@ -92,7 +90,9 @@ fun main(args: Array<String>) {
 //    researches.add(ParticleSwarmNWO(30, 100, 3.0, 2.0, 1.0))
 //    researches.add(ParticleSwarmNWO(30, 100, 2.0, 3.0, 1.0))
 //    researches.add(ParticleSwarmNWO(30, 100, 2.5, 2.5, 0.7))
-    researches.add(ParticleSwarmNWO(30, 100, 1.5, 4.0, 1.0))
+//    researches.add(ParticleSwarmNWO(30, 100, 1.5, 4.0, 1.0))
+
+    researches.add(AntColonyNWO(10, 5, 4, 10.0))
 
     makeResearch(neuralNetwork, researches, 1)
 }

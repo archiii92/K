@@ -101,7 +101,6 @@ class ParticleSwarmNWO(val particleCount: Int, val iterationCount: Int, val φp:
         }
 
         fun calculateCurrentLocal(neuron: AbstractMLPNeuron, neuralNetwork: NeuralNetwork) {
-
             for (j in neuron.weights.indices) {
                 neuron.weights[j] = x[j]
             }
