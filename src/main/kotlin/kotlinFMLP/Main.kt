@@ -7,7 +7,6 @@ import kotlinFMLP.neuralNetworkCriterias.NNCCommand
 import kotlinFMLP.neuralNetworkCriterias.TayleDiscrepancyRatioNNC
 import kotlinFMLP.neuronFactories.AbstractNeuronFactory
 import kotlinFMLP.neuronFactories.LogisticNeuronFactory
-import kotlinFMLP.neuronWeightsOptimizers.AntColonyNWO
 import kotlinFMLP.neuronWeightsOptimizers.NWOCommand
 import kotlinFMLP.utils.format
 
@@ -92,7 +91,24 @@ fun main(args: Array<String>) {
 //    researches.add(ParticleSwarmNWO(30, 100, 2.5, 2.5, 0.7))
 //    researches.add(ParticleSwarmNWO(30, 100, 1.5, 4.0, 1.0))
 
-    researches.add(AntColonyNWO(10, 5, 4, 10.0))
+//    researches.add(AntColonyNWO(5, 30, 6, 10.0))
+//    researches.add(AntColonyNWO(5, 50, 4, 0.1))
+//    researches.add(AntColonyNWO(5, 75, 4, 0.1))
+//    researches.add(AntColonyNWO(5, 100, 4, 0.1))
+
+//    researches.add(AntColonyNWO(15, 30, 6, 10.0))
+//    researches.add(AntColonyNWO(15, 25, 4, 0.1))
+//    researches.add(AntColonyNWO(15, 50, 4, 0.1))
+//    researches.add(AntColonyNWO(15, 75, 4, 0.1))
+
+//    researches.add(AntColonyNWO(30, 30, 6, 10.0))
+//    researches.add(AntColonyNWO(30, 25, 4, 0.1))
+//    researches.add(AntColonyNWO(30, 50, 4, 0.1))
+
+//    researches.add(AntColonyNWO(50, 10, 6, 10.0))
+//    researches.add(AntColonyNWO(50, 20, 4, 0.1))
+//    researches.add(AntColonyNWO(50, 30, 4, 0.1))
+//    researches.add(AntColonyNWO(75, 20, 4, 0.1))
 
     makeResearch(neuralNetwork, researches, 1)
 }
