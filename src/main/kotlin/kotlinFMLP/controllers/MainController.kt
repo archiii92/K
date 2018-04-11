@@ -19,14 +19,21 @@ import org.springframework.web.bind.annotation.RestController
 
 class ForecastSettings {
     lateinit var fileName: String
-    lateinit var testTrainDivide: Number
+    lateinit var trainTestDivide: Number
     lateinit var fuzzyLayerSize: Number
     lateinit var hiddenLayerSize: Number
     lateinit var inputLayerSize: Number
     lateinit var selectedNetwork: String
     lateinit var selectedAlgorithm: String
+
     lateinit var initialTemperature: Number
     lateinit var warmingKeepPercent: Number
+
+    lateinit var particleCount: Number
+    lateinit var iterationCount: Number
+    lateinit var k: Number
+    lateinit var φg: Number
+    lateinit var φp: Number
 
 //    lateinit var algorithmParameters: SimulatedAnnealingSettings
 //    lateinit var initialTemperature: Number
@@ -55,12 +62,21 @@ class ForecastSettings {
 //    }
 }
 
+class ForecastResult {
+    lateinit var initError: Number
+    lateinit var afterFuzzyLayerInitError: Number
+    lateinit var afterOptimizationError: Number
+    lateinit var finalError: Number
+
+    lateinit var realValues: DoubleArray
+    lateinit var forecastValues: DoubleArray
+}
 
 @RestController
 class MainController {
 
     @PostMapping("/forecast")
-    fun forecast(@RequestBody forecastSettings: ForecastSettings): DoubleArray {
+    fun forecast(@RequestBody forecastSettings: ForecastSettings): ForecastResult {
 
         val model = MainModel()
 
