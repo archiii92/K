@@ -1,5 +1,6 @@
 package kotlinFMLP.controllers
 
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -76,6 +77,7 @@ class ForecastResult {
 class MainController {
 
     @PostMapping("/forecast")
+    @CrossOrigin(origins = ["http://localhost:8081"])
     fun forecast(@RequestBody forecastSettings: ForecastSettings): ForecastResult {
 
         val model = MainModel()
