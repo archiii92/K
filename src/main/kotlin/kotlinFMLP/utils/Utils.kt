@@ -20,7 +20,9 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
     }
     scanner.close()
 
-    val dataValues = DoubleArray(readedLines.size)
+    val dataValues = DoubleArray(readedLines.size - 1)
+    val dates = Array<String>(readedLines.size - 1) { "" }
+
     var max = Double.MIN_VALUE
     min = Double.MAX_VALUE
 
@@ -29,6 +31,8 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
             continue
         }
         val dataString = readedLines[i].split(",")
+
+        val dataDate = dataString[0]
         val dataValue = dataString[1].toDouble()
 
         if (dataValue > max)
@@ -36,14 +40,15 @@ fun readData(trainData: ArrayList<DataVector>, testData: ArrayList<DataVector>, 
         else if (dataValue < min)
             min = dataValue
 
-        dataValues[i] = dataValue
+        dataValues[i - 1] = dataValue
+        dates[i - 1] = dataDate
     }
 
     dif = max - min
 
     var i = 0
     while (i < dataValues.count() - inputLayerSize - outputLayerSize) {
-        val dataVector = DataVector(inputLayerSize, outputLayerSize)
+        val dataVector = DataVector(inputLayerSize, outputLayerSize, dates[i])
         var j = 0
 
         while (j < inputLayerSize) {

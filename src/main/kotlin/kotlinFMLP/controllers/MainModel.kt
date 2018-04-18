@@ -91,6 +91,7 @@ class MainModel {
 
             result.realValues = DoubleArray(neuralNetwork.testData.size)
             result.forecastValues = DoubleArray(neuralNetwork.testData.size)
+            result.forecastDates = Array(neuralNetwork.testData.size) { "" }
 
             for (i in neuralNetwork.testData.indices) {
                 val dataVector = neuralNetwork.testData[i]
@@ -98,6 +99,7 @@ class MainModel {
                 for (j in dataVector.Forecast.indices) {
                     result.realValues[i] = dataVector.Forecast[j]
                     result.forecastValues[i] = res[j]
+                    result.forecastDates[i] = dataVector.ForecastDate
                 }
             }
 

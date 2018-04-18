@@ -71,6 +71,7 @@ class ForecastResult {
 
     lateinit var realValues: DoubleArray
     lateinit var forecastValues: DoubleArray
+    lateinit var forecastDates: Array<String>
 }
 
 @RestController
