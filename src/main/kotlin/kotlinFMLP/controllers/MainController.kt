@@ -36,31 +36,12 @@ class ForecastSettings {
     lateinit var φg: Number
     lateinit var φp: Number
 
-//    lateinit var algorithmParameters: SimulatedAnnealingSettings
-//    lateinit var initialTemperature: Number
-//    lateinit var warmingKeepPercent: Number
+    lateinit var speciesCount: Number
+    lateinit var crossPossibility: Number
+    lateinit var mutationPossibility: Number
 
-//    constructor(
-//            fileName: String,
-//            testTrainDivide: Number,
-//            fuzzyLayerSize: Number,
-//            hiddenLayerSize: Number,
-//            inputLayerSize: Number,
-//            selectedNetwork: String,
-//            selectedAlgorithm: String
-////            initialTemperature: Number,
-////            warmingKeepPercent: Number
-//    ): this() {
-//        this.fileName = fileName
-//        this.testTrainDivide = testTrainDivide
-//        this.fuzzyLayerSize = fuzzyLayerSize
-//        this.hiddenLayerSize = hiddenLayerSize
-//        this.inputLayerSize = inputLayerSize
-//        this.selectedNetwork = selectedNetwork
-//        this.selectedAlgorithm = selectedAlgorithm
-////        this.initialTemperature = initialTemperature
-////        this.warmingKeepPercent = warmingKeepPercent
-//    }
+    lateinit var antCount: Number
+    lateinit var α: Number
 }
 
 class ForecastResult {

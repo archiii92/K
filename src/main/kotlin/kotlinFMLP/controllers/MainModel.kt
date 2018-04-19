@@ -8,9 +8,7 @@ import kotlinFMLP.neuralNetworkCriterias.NNCCommand
 import kotlinFMLP.neuralNetworkCriterias.TayleDiscrepancyRatioNNC
 import kotlinFMLP.neuronFactories.AbstractNeuronFactory
 import kotlinFMLP.neuronFactories.LogisticNeuronFactory
-import kotlinFMLP.neuronWeightsOptimizers.NWOCommand
-import kotlinFMLP.neuronWeightsOptimizers.ParticleSwarmNWO
-import kotlinFMLP.neuronWeightsOptimizers.SimulatedAnnealingNWO
+import kotlinFMLP.neuronWeightsOptimizers.*
 
 class MainModel {
     fun makeForecast(forecastSettings: ForecastSettings): ForecastResult {
@@ -30,6 +28,18 @@ class MainModel {
                     forecastSettings.φp.toDouble(),
                     forecastSettings.φg.toDouble(),
                     forecastSettings.k.toDouble()
+            )
+            "goa" -> neuronWeightsOptimizer = GeneticNWO(
+                    forecastSettings.speciesCount.toInt(),
+                    forecastSettings.iterationCount.toInt(),
+                    forecastSettings.crossPossibility.toDouble() / 100,
+                    forecastSettings.mutationPossibility.toDouble() / 100
+            )
+            "maco" -> neuronWeightsOptimizer = AntColonyNWO(
+                    forecastSettings.antCount.toInt(),
+                    forecastSettings.iterationCount.toInt(),
+                    4,
+                    forecastSettings.α.toDouble()
             )
         }
 
