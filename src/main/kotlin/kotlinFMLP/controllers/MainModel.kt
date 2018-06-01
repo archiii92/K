@@ -67,7 +67,7 @@ class MainModel {
                     100,
                     0.001,
                     0.00001,
-                    5000,
+                    10000,
                     3,
                     neuronFactory,
                     neuralNetworkCriteria

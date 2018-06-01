@@ -15,7 +15,7 @@ open class MLP(
         override val dataFileName: String,
         override val trainTestDivide: Int,
         val inputLayerSize: Int,
-        val hiddenLayerSize: Int,
+        hiddenLayerSize: Int,
         val outputLayerSize: Int,
         val η: Double,
         val errorThresholdBackPropagation: Double,
@@ -43,13 +43,6 @@ open class MLP(
 
     override fun learn() {
         backPropagation()
-    }
-
-    final override fun test() {
-        val trainError = calculateError(trainData)
-        val testError = calculateError(testData)
-
-        println("Трен СКО: ${trainError.format(6)} Тест СКО: ${testError.format(6)}")
     }
 
     override fun calculate(dataVector: DataVector): DoubleArray {
